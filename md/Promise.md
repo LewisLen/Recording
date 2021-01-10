@@ -210,6 +210,79 @@ Promise.race([p1,p2,p3]).then(values => {
 > Promise.race看哪一个异步请求最快执行，不管成功失败，获取第一个执行完的异步请求。
 
 
+## Promise的状态改变和回调函数的执行
+
+```javascript
+
+// 常规做法：先指定了回调函数，后改变了状态
+ new Promise((resolve,reject) => {
+	// 后改变了状态，指定了数据，回调函数被调用，得到数据
+	setTimeout(() => {
+		console.log('异步请求')
+		resolve(1);
+	},2000)
+}).then(
+	// 先指定了回调函数，但是还没有执行，而是保存了当前指定的回调函数
+	value => {
+		console.log('value===',value)
+	},
+	reason => {}
+)
+
+// 在executor中立即调用resolve，就是先改变状态，再指定回调函数
+new Promise((resolve,reject) => {
+	// 先改变状态，指定数据
+	resolve(1)
+}).then(
+	// 后指定回调函数，异步执行回调函数时就得到了数据 
+	value => {},
+	reason => {}
+)
+
+// 将回调函数在异步请求之后执行，也可以做到先改变状态，再执行回调函数
+const p = new Promise((resolve,reject) => {
+	setTimeout(() => {
+		resolve(1);
+	},1000)
+})
+setTimeout(() => {
+	p.then(value => {
+		console.log('value',value);
+	})
+},2000)
+
+```
+
+> 注意：executor执行中的函数时立即执行的，指定回调函数是同步的，但是then中的回调函数则是异步执行的
+
+
+## 理解Promise.then的状态值
+
+```javascript
+
+new Promise((resolve,reject) => {
+	setTimeout(() => {
+		resolve(1)
+	},0)
+})
+.then(
+	value => {
+		console.log('value111',value)
+		// 没有指定return值则是return undefined
+	},
+	reason => {console.log('reject111',reason)}
+)
+.then(
+	value => {console.log('value222',value)},
+	reason => {console.log('reason222',reason)}
+)
+// 1,undefined
+```
+
+> 新的promise状态（后边的then状态）是由前一个then指定的回调函数执行的结果(return值或者异常）决定
+> 1. 如果抛出异常，新的promise状态变为rejected，reason为抛出的异常
+> 2. 如果返回的是非promise的任意值，新promise状态为resolved，value为返回值
+> 3. 如果返回的是另一个新promise，此promise的结果就会成为新promise的结果
 
 
 
