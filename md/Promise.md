@@ -285,6 +285,32 @@ new Promise((resolve,reject) => {
 > 3. 如果返回的是另一个新promise，此promise的结果就会成为新promise的结果
 
 
+## Promise的捕获传透
+
+```javascript
+
+new Promise((resolve,reject) => {
+	reject(1)
+})
+.then(
+	value => {console.log('value1',value)},
+	// 没有写onRejected()回调函数相当于
+	// reason => { throw reason }
+)
+.then(
+	value => {console.log('value2',value)}
+)
+.catch(
+	reason => {
+		// 这里的reason不是直接从一开始的reject(1)得到的，而是一步一步传过来的
+		console.log(reason);
+	}
+);
+
+```
+
+> 最后的catch也不一定就一定会捕获到错误值，因为最后的reason值也是从上边的then()回调函数一步一步传到最后的catch中的，如果中途有做其它处理拦截了，则不会到最后一步的catch
+
 
 
 
