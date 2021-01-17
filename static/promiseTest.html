@@ -14,6 +14,7 @@
 				console.log('写在resolve之后')
 			},100)
 		})
+		// todo 指定一个then回调函数，没法执行成功。尚未找到原因。。
 		p.then(
 			value => {
 				console.log('onResolved1',value)
