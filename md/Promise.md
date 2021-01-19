@@ -222,7 +222,7 @@ Promise.race([p1,p2,p3]).then(values => {
 		resolve(1);
 	},2000)
 }).then(
-	// 先指定了回调函数，但是还没有执行，而是保存了当前指定的回调函数
+	// 先同步指定了回调函数，但是还没有执行，而是在promise内部保存了当前指定的回调函数
 	value => {
 		console.log('value===',value)
 	},
@@ -253,7 +253,7 @@ setTimeout(() => {
 
 ```
 
-> 注意：executor执行中的函数时立即执行的，指定回调函数是同步的，但是then中的回调函数则是异步执行的
+> 注意：executor执行中的函数时立即(同步）执行的，指定回调函数是同步的，then中的回调函数是异步执行的
 
 
 ## 理解Promise.then的状态值
@@ -312,7 +312,7 @@ new Promise((resolve,reject) => {
 > 最后的catch也不一定就一定会捕获到错误值，因为最后的reason值也是从上边的then()回调函数一步一步传到最后的catch中的，如果中途有做其它处理拦截了，则不会到最后一步的catch
 
 
-
+## 自定义Promise
 
 
 
