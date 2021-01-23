@@ -263,25 +263,35 @@ setTimeout(() => {
 new Promise((resolve,reject) => {
 	setTimeout(() => {
 		resolve(1)
+		// reject(11)
 	},0)
 })
 .then(
 	value => {
-		console.log('value111',value)
-		// 没有指定return值则是return undefined
+		console.log('value1',value)
+		// 1. 没有指定return值则是return undefined
+		// 2. return Promise.resolve(2);
+		// 3. return Promise.reject(3);
+		// 4. throw 4
 	},
-	reason => {console.log('reject111',reason)}
+	reason => {console.log('reject11',reason)}
+	// 11
 )
 .then(
-	value => {console.log('value222',value)},
-	reason => {console.log('reason222',reason)}
+	value => {console.log('value2',value)}, 
+	// 1. undefined
+	// 2. 2
+	// 3. 3
+	// rejected(11) => undefined
+	reason => {console.log('reason22',reason)}
+	// 4. 4
 )
-// 1,undefined
+
 ```
 
 > 新的promise状态（后边的then状态）是由前一个then指定的回调函数执行的结果(return值或者异常）决定
 > 1. 如果抛出异常，新的promise状态变为rejected，reason为抛出的异常
-> 2. 如果返回的是非promise的任意值，新promise状态为resolved，value为返回值
+> 2. 如果返回的是非promise的任意值，新promise状态为resolved，value为return值，没有指定返回值则为`undefined`
 > 3. 如果返回的是另一个新promise，此promise的结果就会成为新promise的结果
 
 

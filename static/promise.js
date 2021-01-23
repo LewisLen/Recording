@@ -11,7 +11,7 @@ var PENDING = 'pending',
 	REJECTED = 'rejected';
 
 
-function Promise(excutor){
+function PromiseTest(excutor){
 	var _this = this;
 	this.status = PENDING;
 	// 成功的值
@@ -75,74 +75,94 @@ function Promise(excutor){
 // 原型上的方法
 
 // 指定成功和失败的回调函数，返回新的Promise对象
-Promise.prototype.then = function(onResolved,onRejected){
+PromiseTest.prototype.then = function(onResolved,onRejected){
 	var _this = this;
 	// 解决链式调用，所以需要返回一个新的promise实例对象
-	var promise2 = new Promise(function(resolve,reject){
+	var promise2 = new PromiseTest(function(resolve,reject){
 		// 一般情况下是先指定回调函数，再改变状态。状态还没改变，还是pending状态，需要先将回调函数存起来，然后再异步执行
-		if(this.status === PENDING){
-			this.callbacks.push({
-				onResolved: onResolved,
-				onRejected: onRejected
+		if(_this.status === PENDING){
+			_this.callbacks.push({
+				onResolved: function(value){
+					onResolved(_this.value)
+				},
+				onRejected: function(reason){
+					onRejected(_this.reason)
+				},
 			})
-		}else if(this.status === FULFILLED){
+		}else if(_this.status === FULFILLED){
 			/**
 			链式调用时第二个then（promise2.then结果取值规则如果下
 				1. 如果上一个回调函数中throw error，promise2的状态为rejected,返回的是reason，值为error
-				2. 如果上一个回调函数返回的是promise，promise2的状态则根据上一个回调函数的promise结果来定，上一个promise成功则成功，失败则失败
-				3. 如果上一个回调函数返回的不是promise，promise2的状态为fulfilled，返回的是value，值为上一个回调函数的返回值（有可能是undifined)，也有可能是
+				2. 如果上一个回调函数return的是promise，promise2的状态则根据上一个回调函数的promise结果来定，上一个promise成功则成功，失败则失败
+				3. 如果上一个回调函数return的不是promise，promise2的状态为fulfilled，返回的是value，value值为上一个回调函数的返回值，没有return值则为undefined
 			*/
 			setTimeout(function(){
 				try{
-					// 2. 如果上一个回调函数返回的是promise，promise2的状态则根据上一个回调函数的promise结果来定，上一个promise成功则成功，失败则失败
+					// 如果上一个回调函数返回的是promise，promise2的状态则根据上一个回调函数的promise结果来定，上一个promise成功则成功，失败则失败
 					var result = onResolved(_this.value);
-					if(result instanceof Promise){
-						result.then(
-							value => resolve(value),
-							reason => reject(reason)
-						)
-						// result.then(resolve,reject);
+					if(result instanceof PromiseTest){
+						// result.then(
+						// 	value => resolve(value),
+						// 	reason => reject(reason)
+						// )
+						result.then(resolve,reject);
 					}else{
-					// 3. 如果上一个回调函数返回的不是promise，promise2的状态为fulfilled，返回的是value，值为上一个回调函数的返回值（有可能是undifined，也有可能是
+					// 如果上一个回调函数返回的不是promise，promise2的状态为fulfilled，返回的是value，值为上一个回调函数的返回值（有可能是undifined，也有可能是
 						resolve(result);
 					}
 				}catch(error){
-					// 1. 如果上一个回调函数中throw error，promise2的状态为rejected,返回的是reason，值为error
+					// 如果上一个回调函数中throw error，promise2的状态为rejected,返回的是reason，值为error
 					reject(error)
 				}
 			});
 
 		}else{
 			setTimeout(function(){
-				onRejected(_this.reason);
-			},0)
+				try{
+					// 如果上一个回调函数返回的是promise，promise2的状态则根据上一个回调函数的promise结果来定，上一个promise成功则成功，失败则失败
+					var result = onRejected(_this.reason);
+					if(result instanceof PromiseTest){
+						// result.then(
+						// 	value => resolve(value),
+						// 	reason => reject(reason)
+						// )
+						result.then(resolve,reject);
+					}else{
+					// 如果上一个回调函数返回的不是promise，promise2的状态为fulfilled，返回的是value，值为上一个回调函数的返回值（有可能是undifined，也有可能是
+						resolve(result);
+					}
+				}catch(error){
+					// 如果上一个回调函数中throw error，promise2的状态为rejected,返回的是reason，值为error
+					reject(error)
+				}
+			});
 		}
 	})
 	return promise2;
 }
 
 // 指定失败的回调函数，返回新的promise对象
-Promise.prototype.catch = function(onRejected){
+PromiseTest.prototype.catch = function(onRejected){
 
 }
 
 // 函数方法
 
-Promise.resolve = function(value){
+PromiseTest.resolve = function(value){
 
 }
-Promise.reject = function(reject){
+PromiseTest.reject = function(reject){
 	
 }
 // 返回一个promise，传入所有的promise成功才成功
-Promise.all = function(promises){
+PromiseTest.all = function(promises){
 	
 }
 // 返回一个promise，由传入的第一个执行成功的promise决定结果
-Promise.race = function(promise){
+PromiseTest.race = function(promise){
 	
 }
 
 
-window.Promise = Promise;
+window.PromiseTest = PromiseTest;
 })(window)

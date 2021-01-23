@@ -1,26 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>Promise</title>
 </head>
 <body>
 	<img src="" id="promise-img">
 	<script type="text/javascript" src="./promise.js"></script>
 	<script type="text/javascript">
 
-		var p = new Promise(function(resolve,reject){
+		var p = new PromiseTest(function(resolve,reject){
 			setTimeout(function(){
 				resolve(1)
 				console.log('写在resolve之后')
 			},100)
 		})
-		// todo 指定一个then回调函数，没法执行成功。尚未找到原因。。
 		p.then(
 			value => {
 				console.log('onResolved1',value)
 			},
 			reason => {
-				console.log('onRejected1',reason)
+				console.log('onRejected11',reason)
 			}
 		)
 		p.then(
@@ -28,7 +27,7 @@
 				console.log('onResolved2',value)
 			},
 			reason => {
-				console.log('onRejected2',reason)
+				console.log('onRejected22',reason)
 			}
 		)
 	</script>
