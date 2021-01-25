@@ -76,26 +76,27 @@ function PromiseTest(excutor){
 
 // 将then和catch等方法绑定在原型prototype上
 
-// 指定成功和失败的回调函数，这里重点是then需要返回新的Promise对象
+// 指定成功和失败的回调函数，这里重点是then需要return的Promise对象
 PromiseTest.prototype.then = function(onResolved,onRejected){
 
-	// 
+	// 指定回调函数的默认值，必须是回调函数
 	onResolved = typeof onResolved === 'function' ? onResolved:function(value){
 		return value;
 	}
-	// 异常传透
+	// 指定回调函数的默认值，必须是回调函数
+	// 异常传透，抛出错误
 	onRejected:typeof onRejected === 'function' ? onRejected: function(reason){
-		return reason;
+		throw reason;
 	}
 
 	var _this = this;
 	// 解决链式调用，所以需要返回一个新的promise实例对象
 	return new PromiseTest(function(resolve,reject){
-		// 调用指定回调函数，根据执行结果改变return promise的状态
+		// 调用指定回调函数，根据执行结果改变return的promise的状态
 		function handle(callback){
 			try{
-				// 如果上一个回调函数返回的是promise，promise2的状态则根据上一个回调函数的promise结果来定，上一个promise成功则成功，失败则失败
 				var result = callback(_this.data);
+				// 如果上一个回调函数返回的是promise，promise2的状态则根据上一个回调函数的promise结果来定，上一个promise成功则成功，失败则失败
 				if(result instanceof PromiseTest){
 					// result.then(
 					// 	value => resolve(value),
@@ -117,10 +118,10 @@ PromiseTest.prototype.then = function(onResolved,onRejected){
 			// 这里的onResolved和onRejected回调函数在resolve和reject中就已经指定是异步执行了
 			_this.callbacks.push({
 				// 为了更改new promise的状态，而不是单纯保存promise的回调函数
-				onResolved(value){
+				onResolved: function(value){
 					handle(onResolved);
 				},
-				onRejected(reason){
+				onRejected: function(reason){
 					handle(onRejected);
 				},
 			})
