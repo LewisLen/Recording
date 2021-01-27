@@ -154,10 +154,21 @@ PromiseTest.prototype.catch = function(onRejected){
 // 函数方法
 
 PromiseTest.resolve = function(value){
-
+	// 1. 如果传入的是普通值，则返回成功的状态，value就是传入的值。promise.resolve(1)
+	// 2. 如果传入的是成功的promise，value值就是传入的promise的value值。promise.resolve(promise.resolve(2))
+	// 3. 如果传入的是失败的promise，reason值就是传入的promise的reason值。promise.resolve(promise.reject(3))
+	return new PromiseTest(function(resolve,reject){
+		if(value instanceof PromiseTest){
+			value.then(resolve,reject)
+		}else{
+			resolve(value)
+		}
+	})
 }
-PromiseTest.reject = function(reject){
-	
+PromiseTest.reject = function (reason){
+	return new PromiseTest(function(resolve,reject){
+		reject(reason)
+	})
 }
 // 返回一个promise，传入所有的promise成功才成功
 PromiseTest.all = function(promises){

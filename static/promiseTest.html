@@ -27,42 +27,10 @@
 				console.log('onRejected22',reason)
 			}
 		)
+
+		var p2 = PromiseTest.resolve(2);// 2
+		var p3 = PromiseTest.resolve(PromiseTest.resolve(3));// 3
+		var p4 = PromiseTest.resolve(PromiseTest.reject(4));// catch 4
 	</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </body>
 </html>
