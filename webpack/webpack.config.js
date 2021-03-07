@@ -27,7 +27,17 @@ module.exports = {
           },
           // 将css文件变成commonjs模块加载js中
           'css-loader',
-          
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [
+                  // postcss通过这个loader来找到package.json中的browserslist配置，看下哪些版本需要配置css兼容样式
+                  "postcss-preset-env",
+                ],
+              },
+            }
+          }
         ],
       },
       {
@@ -46,7 +56,18 @@ module.exports = {
           // 将css文件变成commonjs模块加载js中
           'css-loader',
           // 将less编译成css
-          'less-loader'
+          'less-loader',
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [
+                  // postcss通过这个loader来找到package.json中的browserslist配置，看下哪些版本需要配置css兼容样式
+                  "postcss-preset-env",
+                ],
+              },
+            }
+          }
         ]
       },
       {
