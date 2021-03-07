@@ -16,7 +16,9 @@ module.exports = {
         // Loader是从右到左执行
         use:[
           // 创建style标签，将js中的css样式资源插入到head中
-          'style-loader',
+          // 'style-loader',
+          // 有了MiniCssExtractPlugin就不需要style-loader了，会直接将css提取出来
+          MiniCssExtractPlugin.loader,
           // 将css文件变成commonjs模块加载js中
           'css-loader'
         ],
@@ -27,7 +29,8 @@ module.exports = {
         // Loader是从右到左执行
         use:[
           // 创建style标签，将js中的css样式资源插入到head中
-          'style-loader',
+          // 'style-loader',
+          MiniCssExtractPlugin.loader,
           // 将css文件变成commonjs模块加载js中
           'css-loader',
           // 将less编译成css
@@ -52,7 +55,7 @@ module.exports = {
     }),
     // 抽取css文件
     new MiniCssExtractPlugin({
-      filename: 'static/css/[name].[chunkhash:8].css'
+      filename: 'css/[name].[chunkhash:8].css'
     })
   ],
   mode: 'development',
