@@ -158,3 +158,54 @@ module:{
   ]
 },
 ```
+
+## 打包图片处理和其它资源
+
+通过`url-loader`来处理引入的图片，webpack5建议asset module（资源模块）来处理了，它会将图片文件转为base64格式，这样一来可以减少请求图片的次数，但是也有可能造成生成的base64比原来的图片大。
+
+```shell
+# 安装url-loader和file-loader
+npm i url-loader file-loader -D
+```
+添加相关配置规则
+
+```javascript
+// webpack.config.js
+module:{
+  rules:[
+    {
+      test:/\.(jpg|png|jpeg|gif)$/,
+      loader: 'url-loader',
+      options:{
+        // 小于10kb则会处理成base64格式
+        limit: 10*1024
+      }
+    }
+  ]
+}
+```
+
+做好图片loader配置打包之后会发现，小于10k的图片已经打入到js中去了，大于10k的图片则保留在dist目录下。
+
+> 这里需要注意的是，url-loader依赖于file-loader，所以必须安装两个loader才能处理图片打包
+
+## webpack-dev-server
+
+不管是htm、css还是js，都是改动比较频繁的文件，不可能说每次改完都要手动去打包看下效果，这样太麻烦了。可以引用`webpack-dev-server`来进行热加载，进行简单的配置更改之后会自动刷新。
+
+```javascript
+// webpack.config.js
+devServer:{
+  contentBase: Path.resolve(__dirname,'dist'),
+  // 启动gzip压缩
+  compress: true,
+  port: 2333,
+  open: true
+}
+```
+
+> webpack 会将打包结果输出，
+> npx webpack-dev-serve 只会在内存中编译打包，不会输出文件
+> npx webpack-dev-server会报错Cannot find module 'webpack-cli/bin/config-yargs'
+> 因为和webpack-cli版本不兼容，可以将webpack-cli回退到3版本
+> 也可以执行npx webpack serve

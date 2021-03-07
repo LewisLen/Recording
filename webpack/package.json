@@ -5,20 +5,26 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "build": "webpack",
+    "dev": "npx webapck serve"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "css-loader": "^5.1.1",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "file-loader": "^6.2.0",
+    "html-loader": "^2.1.1",
     "html-webpack-plugin": "^5.2.0",
+    "less": "^4.1.1",
+    "less-loader": "^8.0.0",
     "style-loader": "^2.0.0",
+    "url-loader": "^4.1.1",
     "webpack": "^5.24.3",
-    "webpack-cli": "^4.5.0"
+    "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
-    "axios": "^0.21.1",
-    "less": "^4.1.1",
-    "less-loader": "^8.0.0"
+    "axios": "^0.21.1"
   }
 }

@@ -1,5 +1,6 @@
 const Path = require("path");
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 module.exports = {
   entry: './src/index.js',
   output:{
@@ -18,7 +19,7 @@ module.exports = {
           'style-loader',
           // 将css文件变成commonjs模块加载js中
           'css-loader'
-        ]
+        ],
       },
       {
         // Loader配置,设置规则
@@ -32,14 +33,35 @@ module.exports = {
           // 将less编译成css
           'less-loader'
         ]
+      },
+      {
+        test:/\.(jpg|png|jpeg|gif)$/,
+        loader: 'url-loader',
+        options:{
+          // 小于10kb则会处理成base64格式
+          limit: 10*1024
+        }
       }
     ]
   },
   plugins:[
     new HtmlWebpackPlugin({
       template: './src/index.html',
+      // 会在打包好的bundle.js后面加上hash串
+      hash: true
+    }),
+    // 抽取css文件
+    new MiniCssExtractPlugin({
+      filename: 'static/css/[name].[chunkhash:8].css'
     })
   ],
-  mode: 'development'
+  mode: 'development',
   // mode: 'production'
+  devServer:{
+    contentBase: Path.resolve(__dirname,'dist'),
+    // 启动gzip压缩
+    compress: true,
+    port: 2333,
+    open: true
+  }
 }
