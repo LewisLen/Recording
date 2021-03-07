@@ -7,8 +7,8 @@
 (function(params){
 
 var PENDING = 'pending',
-	FULFILLED = 'fulfilled',
-	REJECTED = 'rejected';
+    FULFILLED = 'fulfilled',
+    REJECTED = 'rejected';
 
 // excutor执行器函数是同步执行
 function PromiseTest(excutor){
@@ -172,7 +172,18 @@ PromiseTest.reject = function (reason){
 }
 // 返回一个promise，传入所有的promise成功才成功
 PromiseTest.all = function(promises){
-	
+	return new PromiseTest(function(resolve,reject){
+		promises.forEach(function(p,index){
+			p.then(
+				function value(value){
+					resolve(value)
+				},
+				function reason(reason){
+					reject(reason)
+				}
+			)
+		})
+	})
 }
 // 返回一个promise，由传入的第一个执行成功的promise决定结果
 PromiseTest.race = function(promise){
