@@ -1,6 +1,7 @@
 const Path = require("path");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 module.exports = {
   entry: './src/index.js',
   output:{
@@ -18,9 +19,15 @@ module.exports = {
           // 创建style标签，将js中的css样式资源插入到head中
           // 'style-loader',
           // 有了MiniCssExtractPlugin就不需要style-loader了，会直接将css提取出来
-          MiniCssExtractPlugin.loader,
+          {
+            loader:MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: '../',
+            },
+          },
           // 将css文件变成commonjs模块加载js中
-          'css-loader'
+          'css-loader',
+          
         ],
       },
       {
@@ -30,7 +37,12 @@ module.exports = {
         use:[
           // 创建style标签，将js中的css样式资源插入到head中
           // 'style-loader',
-          MiniCssExtractPlugin.loader,
+          {
+            loader:MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: '../',
+            },
+          },
           // 将css文件变成commonjs模块加载js中
           'css-loader',
           // 将less编译成css
@@ -42,8 +54,23 @@ module.exports = {
         loader: 'url-loader',
         options:{
           // 小于10kb则会处理成base64格式
-          limit: 10*1024
+          limit: 10*1024,
+          outputPath: 'images/'
         }
+      },
+      {
+        test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
+        loader: 'url-loader',
+        options:{
+          // 小于10kb则会处理成base64格式
+          limit: 10*1024,
+          outputPath: 'images/'
+        }
+      },
+      {
+        // 处理html中直接引入的图片展示问题
+        test: /\.(htm|html)$/,
+        use: 'html-withimg-loader'
       }
     ]
   },
@@ -55,8 +82,10 @@ module.exports = {
     }),
     // 抽取css文件
     new MiniCssExtractPlugin({
-      filename: 'css/[name].[chunkhash:8].css'
-    })
+      filename: 'css/[name].[chunkhash:8].css',
+    }),
+    // 打包前先清空文件夹
+    new CleanWebpackPlugin()
   ],
   mode: 'development',
   // mode: 'production'
