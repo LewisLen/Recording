@@ -55,7 +55,9 @@ module.exports = {
         options:{
           // 小于10kb则会处理成base64格式
           limit: 10*1024,
-          outputPath: 'images/'
+          outputPath: 'images/',
+          // 处理与html-withimg-loader的冲突
+          esModule:false
         }
       },
       {
@@ -87,7 +89,7 @@ module.exports = {
     // 打包前先清空文件夹
     new CleanWebpackPlugin()
   ],
-  mode: 'development',
+  mode: 'development', // 开发环境
   // mode: 'production'
   devServer:{
     contentBase: Path.resolve(__dirname,'dist'),

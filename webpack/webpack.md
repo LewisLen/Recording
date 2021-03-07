@@ -185,7 +185,42 @@ module:{
 }
 ```
 
-做好图片loader配置打包之后会发现，小于10k的图片已经打入到js中去了，大于10k的图片则保留在dist目录下。
+做好图片loader配置打包之后会发现，小于10k的图片已经打入到js中去了，大于10k的图片则保留在dist目录下。但是还是会有问题，css引入背景图可能会引入打包路径的问题，导致没法展示图片。再者直接在html中引入图片也是不能直接展示，这就需要再加个`html-withimg-loader`来处理图片。
+
+```javascript
+// webpack.config.js
+{
+  test:/\.css$/,
+  use:[
+    {
+      loader:MiniCssExtractPlugin.loader,
+      options: {
+        publicPath: '../',
+      },
+    },
+    // 将css文件变成commonjs模块加载js中
+    'css-loader',
+  ],
+},
+{
+  test:/\.less$/,
+  use:[
+    {
+      loader:MiniCssExtractPlugin.loader,
+      options: {
+        publicPath: '../',
+      },
+    },
+    'css-loader',
+    'less-loader'
+  ]
+},
+{
+  // 处理html中直接引入的图片展示问题
+  test: /\.(htm|html)$/,
+  use: 'html-withimg-loader'
+}
+```
 
 > 这里需要注意的是，url-loader依赖于file-loader，所以必须安装两个loader才能处理图片打包
 
