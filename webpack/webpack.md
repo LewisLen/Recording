@@ -269,3 +269,15 @@ npm i postcss-loader postcss-preset-env -D
   }
 }
 ```
+
+## HMR
+
+模块热替换功能是webpack**开发环境**最终的功能之一，通过可以在css和js更新模块的时候不需要全部刷新打包而只刷新被更改过的模块。
+
+## sourceMap
+
+通过webpack会将几个js内容打包到一个js文件中，当发生错误时，很难定位到问题。通过sourceMap就可以定位到具体是哪个文件产生的问题。可以把sourceMap理解为源代码到构建后代码的映射，如果构建后代码报错，可以通过sourceMap追踪源代码错误。
+
+```javascript
+devtool:'source-map'
+```

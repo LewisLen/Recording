@@ -131,6 +131,8 @@ module.exports = {
     // 启动gzip压缩
     compress: true,
     port: 2333,
-    open: true
+    open: true,
+    // HMR模块热加载
+    hot: true
   }
 }
