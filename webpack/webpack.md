@@ -246,3 +246,26 @@ devServer:{
 > 也可以执行npx webpack serve
 
 ## CSS兼容处理
+
+有些css3的语言需要加前缀浏览器才能识别处理，所以需要对css做一个兼容性处理，主要是配置`postcss-loader`
+
+```shell
+npm i postcss-loader postcss-preset-env -D
+```
+在css-loader和less-loader下做如下配置
+```javascript
+
+// webpack.config.js
+'css-loader',
+{
+  loader: "postcss-loader",
+  options: {
+    postcssOptions: {
+      plugins: [
+        // postcss通过这个loader来找到package.json中的browserslist配置，看下哪些版本需要配置css兼容样式
+        "postcss-preset-env",
+      ],
+    },
+  }
+}
+```

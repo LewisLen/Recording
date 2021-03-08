@@ -3,6 +3,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin');
+
+// 定义nodejs环境变量
+process.env.NODE_ENV = 'production';
+
 module.exports = {
   entry: './src/index.js',
   output:{
@@ -23,6 +27,7 @@ module.exports = {
           {
             loader:MiniCssExtractPlugin.loader,
             options: {
+              // 这里的publicPath设置主要还是看打包之后css放在哪里
               publicPath: '../',
             },
           },
@@ -102,7 +107,13 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html',
       // 会在打包好的bundle.js后面加上hash串
-      hash: true
+      hash: true,
+      minify:{
+        // 删除空格
+        collapseWhitespace: true,
+        // 删除注释
+        removeComments: true
+      }
     }),
     // 抽取css文件
     new MiniCssExtractPlugin({
