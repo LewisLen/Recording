@@ -224,7 +224,7 @@ module:{
 
 > 这里需要注意的是，url-loader依赖于file-loader，所以必须安装两个loader才能处理图片打包
 
-## webpack-dev-server
+## webpack-dev-server和HMR
 
 不管是htm、css还是js，都是改动比较频繁的文件，不可能说每次改完都要手动去打包看下效果，这样太麻烦了。可以引用`webpack-dev-server`来进行热加载，进行简单的配置更改之后会自动刷新。
 
@@ -238,6 +238,8 @@ devServer:{
   open: true
 }
 ```
+
+模块热替换功能是webpack**开发环境**最终的功能之一，通过可以在css和js更新模块的时候不需要全部刷新打包而只刷新被更改过的模块。
 
 > webpack 会将打包结果输出，
 > npx webpack-dev-serve 只会在内存中编译打包，不会输出文件
@@ -270,14 +272,27 @@ npm i postcss-loader postcss-preset-env -D
 }
 ```
 
-## HMR
 
-模块热替换功能是webpack**开发环境**最终的功能之一，通过可以在css和js更新模块的时候不需要全部刷新打包而只刷新被更改过的模块。
+
 
 ## sourceMap
 
 通过webpack会将几个js内容打包到一个js文件中，当发生错误时，很难定位到问题。通过sourceMap就可以定位到具体是哪个文件产生的问题。可以把sourceMap理解为源代码到构建后代码的映射，如果构建后代码报错，可以通过sourceMap追踪源代码错误。
 
+直接在开发环境中配置`devtool`即可，也可以通过`source-map-loader`来配置控制sourceMap，devtool不同的值，生成不一样的sourceMap，如：
+
+- eval-source-map：在初始化source map时比较慢，这里会使每个模块使用eval()执行，并且source map转换为DataUrl后添加到eval()中。
+- source-map：整个source map会作为一个单独的文件生成。为bundle添加了一个引用注释，以便开发工具
+- hidden-source-map：和source map类似，但是不会为bundle添加引用注释。如果只想source map映射那些源自错误报告的错误堆栈跟踪信息，但不想为浏览器开发工具暴露souremap
+- inline-source-map: source map转换为DataUrl后添加到bundle中
+- nosources-source-map：创建的不包含源代码内容，不会暴露原始代码
+
+在开发环境中可以用`eveal-source-map`(快速和调试兼顾)、`eval-cheap-source-map`和`eval-cheap-module-source-map`。
+生成环境中建议使用`source-map`、`hidden-source-map`和`nosources-source-map`
+
+
 ```javascript
-devtool:'source-map'
+devtool:'eveal-source-map'
 ```
+
+> [source-map](https://webpack.docschina.org/configuration/devtool/#root)
