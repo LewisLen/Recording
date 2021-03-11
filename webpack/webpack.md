@@ -272,9 +272,6 @@ npm i postcss-loader postcss-preset-env -D
 }
 ```
 
-
-
-
 ## sourceMap
 
 通过webpack会将几个js内容打包到一个js文件中，当发生错误时，很难定位到问题。通过sourceMap就可以定位到具体是哪个文件产生的问题。可以把sourceMap理解为源代码到构建后代码的映射，如果构建后代码报错，可以通过sourceMap追踪源代码错误。
@@ -287,12 +284,110 @@ npm i postcss-loader postcss-preset-env -D
 - inline-source-map: source map转换为DataUrl后添加到bundle中
 - nosources-source-map：创建的不包含源代码内容，不会暴露原始代码
 
-在开发环境中可以用`eveal-source-map`(快速和调试兼顾)、`eval-cheap-source-map`和`eval-cheap-module-source-map`。
-生成环境中建议使用`source-map`、`hidden-source-map`和`nosources-source-map`
+在开发环境中建议使用`eveal-source-map`(快速和调试兼顾)、`eval-cheap-source-map`和`eval-cheap-module-source-map`。
+在生产环境中建议使用`source-map`、`hidden-source-map`和`nosources-source-map`
 
 
 ```javascript
 devtool:'eveal-source-map'
 ```
 
+## PWA
+
+```javascript
+// webpack.config.js
+const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
+new WorkboxWebpackPlugin.GenerateSW({
+  // serviceworker快速启动
+  clientsClaim: true,
+  skipWaiting: true 
+})
+```
+
+## 多线程打包
+
+通过`thread-loader`多线程打包方式，用于比较大、打包比较慢的工程打包，一般用于js编译。
+
+```javascript
+// webpack.config.js
+use:[
+  'thread-loader',
+  {
+    test: /\.js$/,
+    loader: 'babel-loader',
+    include: [resolve('src')]
+  }
+]
+```
+
+## externals
+
+如果某些依赖有cdn地址，则可以考虑不用在本地打包，而是直接在html中以cdn的方式引入。
+```javascript
+// webpack.config.js
+externals:{
+  // 忽略打包的依赖名：npm包名
+  'vue': 'Vue',
+  'vue-router': 'VueRouter',
+  'vuex':'Vuex',
+  'jquery': '$'
+}
+// index.js
+import vue from 'vue'; // 可以不需要import了，可直接使用Vue
+console.log(vue);
+```
+
+这样配置之后webpack在打包的时候是不会将vue和jquery打包进来的，但是别忘了要将vue和jquery以链接的方式引入。
+```html
+<script src="https://lib.baomitu.com/vue/2.6.12/vue.common.prod.js"></script>
+```
+
+
+## webpack.dll.js
+
+在打包过程中，一般会有一个公共的js包，这个包含很多文件，如果能将指定的不常修改的库（如：vue、jqueyr、react）等进行单独打包，则可以减小公共包的大小。
+
+首先必须要清楚的是，dll.js是为了单独打包某些库，这样就能避免再打包的重复打包某些依赖库，优化打包速度。这里通过manifest.json做了一个映射关系，然后通过DllReferencePlugin高速webpack在打包的时候不再打包映射到的依赖，最后通过AddAssetHtmlWebpackPlugin插件将webpack没打包但是一早就单独打包好的依赖插入到html中。
+
+```javascript
+// webpack.dll.js
+const Path = require("path");
+const webpack = require("webpack");
+const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin');
+module.exports = {
+    entry: {
+        // [name]: [库名]
+        vue: ['vue'],
+        jquery: ['jquery']
+    },
+    output: {
+        filename: '[name].js',
+        path: Path.resolve(__dirname,'dll'),
+        library: '[name]_[hash]'// 打包之后暴露出去的内容名称
+    },
+    plugins:[
+        new webpack.DllPlugin({
+            // 生成一个映射库名称
+            name: '[name]_[hash]',
+            // 文件路径
+            path: Path.resolve(__dirname,'dll/manifest.json')
+        })
+    ]
+}
+// webpack.config.js
+plugins:[
+  // ...
+  new webpack.DllReferencePlugin({
+    // 在打包的时候，mainfest.json文件中映射的js不会打包
+    manifest: Path.resolve(__dirname,'dll/mainfest.json');
+  })
+  // 因为DllReferencePlugin插件告知了某些js是不需要打包的，不打包的话html引入了js就会报错，所以需要借助插件重新插入
+  // 将某个文件打包输出，在html中插入
+  new AddAssetHtmlWebpackPlugin({
+    filepath: Path.resolve(__dirname,'dll/jquery.js')
+  })
+]
+```
+
 > [source-map](https://webpack.docschina.org/configuration/devtool/#root)
+> [dll-plugin](https://webpack.docschina.org/plugins/dll-plugin/)
