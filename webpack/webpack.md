@@ -389,5 +389,27 @@ plugins:[
 ]
 ```
 
+## resolve
+
+resolve配置可以让我们在开发过程中更加的方便，如alias可以让我们在开发中不用写那么长的路径。
+
+```javascript
+// webpack.config.js
+resolve:{
+  // 通过import引入时可以不用写后缀，会自动去查找带以下后缀的文件，都没有才会报错
+  extensions: ['.js','.vue','json'],
+  // 通过别名，在项目开发过程中，不用写那么长的路径
+  alias:{
+    vue: 'vue'
+    @: reoslve('src')
+  }
+  // 告诉webpack解析模块的时候去哪个目录查找
+  modules: [
+    resolve(__dirname,'node_modules')
+  ]
+}
+
+```
+
 > [source-map](https://webpack.docschina.org/configuration/devtool/#root)
 > [dll-plugin](https://webpack.docschina.org/plugins/dll-plugin/)
