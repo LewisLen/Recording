@@ -342,6 +342,59 @@ console.log(vue);
 <script src="https://lib.baomitu.com/vue/2.6.12/vue.common.prod.js"></script>
 ```
 
+## optimization
+
+optimzation.splitChunks主要用于拆分包的大小，如果有多个模块或者说多页面打包的时候，某些依赖(图片等资源包也可以单独拆出来）如html2canvas只有被其中一个模块引用，没有做拆包操作的话，还是会打进公共包里边，增加公共包的大小。可以借助`webpack-bundle-analyzer`分析工具，看到公共包里边比较大的依赖，可以尝试拆分出来。
+
+```javascript
+// webpack.config.js
+optimization:{
+  splitChunks:{
+    // 抽离自定义公共组件
+    chunks: 'all',
+    minChunks: 1, // 要拆分的chunk最少被引用的次数
+    maxSize: 0,
+    minSize: 30*1024, // 分割的chunk最小为30kb
+    maxAsyncRequests: 5,// 当这个要被拆分出来的包被引用的次数超过5时，则不拆分
+    maxInitalRequests: 3,// 当这个要被拆分出来的包最大并行请求大于3时，则不拆分
+    automaticNameDelimiter: '~', // 名称链接符
+    cacheGroups:{
+      //  满足上面的公共规则
+      vendors:{
+          name: 'vendors', // 拆分之后的名称
+          test: /[\\/]node_modules[\\/]js[\\/]jweixin[\\/]/, // 匹配路径
+          priority: -10, // 设置优先级 防止和自定义组件混合，不进行打包
+          
+      },
+      default:{
+        minChunks: 2, // 要拆分的chunk最少被引用的次数
+        priority: -20,
+        reuseExistingChunk: true //	如果该chunk中引用了已经被打包，则直接引用该chunk，不会重复打包代码
+      }
+      jweixin: { 
+        name: 'jweixin', // 拆分之后的名称
+        test: /[\\/]static[\\/]js[\\/]jweixin[\\/]/, // 匹配路径
+        reuseExistingChunk: true
+      },
+    }
+  },
+  runtimeChunk:{
+    // 将当前模块记录其它模块的hash值记录单独打包为一个文件runtime-chunk，可以减小公共包vendors的大小
+    name: 'runtime-chunk'
+  }
+  // 压缩js和css
+  new TerserPlugin({
+    // 缓存
+    cache: true,
+    parallel: true, // 多线程打包
+    sourceMap: true,// 启用sourceMap
+  }),
+}
+
+
+
+
+```
 
 ## webpack.dll.js
 
