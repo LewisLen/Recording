@@ -322,55 +322,50 @@ new Promise((resolve,reject) => {
 > 最后的catch也不一定就一定会捕获到错误值，因为最后的reason值也是从上边的then()回调函数一步一步传到最后的catch中的，如果中途有做其它处理拦截了，则不会到最后一步的catch
 
 
-## 自定义Promise
+## async函数和await表达式
 
+async函数的返回值为promise对象，promise对象的结果由async函数执行的返回值决定。
+await右侧的表达式一般为promise对象，也可以是其它的值，如果表达式是promise对象，await返回的是promise成功(没法返回失败的)的值。如果表达式是其它值，直接将此值作为await的返回值。
+await必须写在async函数中，但async函数中可以没有await。如果await的promise失败了，就会抛出异常，需要通过try...catch来捕获处理。
 
+## 队列
 
+js是单线程，会由主线程和微线程之分，执行顺序：同步>微队列>宏队列
 
+微队列：promise回调、mutation回调
+宏队列：dom事件回调、ajax回调、定时器回调
 
+```javascript
+setTimeout(() => {
+	console.log('setTimeout1')
+},0)
+new Promise((resolve,reject) => {
+	resolve(1)
+}).then(
+	value => {
+	console.log('promise1',value)
+})
+new Promise((resolve,reject) => {
+	resolve(2)
+}).then(
+	value => {
+	console.log('promise2',value)
+})
+console.log('fn====');
+setTimeout(() => {
+	console.log('setTimeout2')
+	Promise.resolve(3).then(value => {
+		console.log('promise3',value);
+	})
+},0);
 
+/*
+// 执行顺序如下
+fn==== ​​​​​
+promise1
+promise2 ​​​​​
+setTimeout1 ​​​​
+setTimeout2 ​​​​​
+*/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
