@@ -172,6 +172,31 @@ PromiseTest.reject = function (reason){
 }
 // 返回一个promise，传入所有的promise成功才成功
 PromiseTest.all = function(promises){
+	// 用来保存所有成功value的数值
+	const values = new Array(promises.length);
+	// 用来保存成功promise的数量
+	let resolvedCount = 0;
+	// 返回一个新的promise
+	return new PromiseTest(function(resolve,reject){
+		promises.forEach(function(p,index){
+			p.then(
+				function value(value){
+					resolvedCount++;
+					values[index] = value;
+					// 如果全部成功
+					if(resolvedCount === promises.length);
+					resolve(value);
+				},
+				function reason(reason){
+					reject(reason)
+				}
+			)
+		})
+	})
+}
+// 返回一个promise，由传入的第一个执行成功的promise决定结果
+PromiseTest.race = function(promises){
+	// 只要有一个成功则返回resolved
 	return new PromiseTest(function(resolve,reject){
 		promises.forEach(function(p,index){
 			p.then(
@@ -185,9 +210,26 @@ PromiseTest.all = function(promises){
 		})
 	})
 }
-// 返回一个promise，由传入的第一个执行成功的promise决定结果
-PromiseTest.race = function(promise){
-	
+// 返回一个延迟指定时间才确定结果的promise对象
+PromiseTest.resolveDelay = function(value,time){
+	return new PromiseTest((resolve,reject) => {
+		setTimeout(() => {
+			if(value instanceof PromiseTest){
+				value.then(resolve,reject)
+			}else{
+				resolve(value)
+			}
+		},time)
+	})
+}
+
+// 返回一个延迟指定时间才失败的的promsie对象
+PromiseTest.rejectDelay = function(value,time){
+	return new PromiseTest((resolve,reject) => {
+		setTimeout(() => {
+			reject(value);
+		},time)
+	})
 }
 
 

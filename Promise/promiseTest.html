@@ -31,6 +31,10 @@
 		var p2 = PromiseTest.resolve(2);// 2
 		var p3 = PromiseTest.resolve(PromiseTest.resolve(3));// 3
 		var p4 = PromiseTest.resolve(PromiseTest.reject(4));// catch 4
+
+		PromiseTest.all([p2,p3,p4]).then(res => {
+			console.log(res)
+		})
 	</script>
 </body>
 </html>
