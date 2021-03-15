@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>React</title>
+  <!-- react核心裤 -->
+  <!-- <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script> -->
+  <script src="./lib/react16.14.0.development.js"></script>
+  <!-- react操作dom -->
+  <!-- <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script> -->
+  <script src="./lib/react-dom16.14.0.development.js"></script>
+  <!-- 编译jsx -->
+  <!-- <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script> -->
+  <script src="./lib/babel.min.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="text/babel">
+    class Welcome extends React.Component{
+      render(){
+        // 通过this可以获取props，这里的this指向的是Welcome的实例对象
+        return <h1>Hello,{this.props.name}</h1>
+      }
+    }
+    ReactDOM.render(
+      <Welcome name="Len"/>,// 在React内部做了new实例的操作
+      document.getElementById('app')
+    )
+  </script>
+</body>
+</html>

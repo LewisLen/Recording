@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>React</title>
+  <!-- react核心裤 -->
+  <script src="./lib/react16.14.0.development.js"></script>
+  <!-- react操作dom -->
+  <script src="./lib/react-dom16.14.0.development.js"></script>
+  <!-- 编译jsx -->
+  <script src="./lib/babel.min.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+	<script type="text/babel">
+		// 函数式声明组件
+		function Welcome(props){
+			return <h1>Hello,{props.name}</h1>
+		}
+		// 类式声明组件
+		class Describe extends React.Component{
+			render(){
+				return (
+					console.log(this),// 这里的this指向Describe的实例对象
+					Welcome(this.props.name),
+					<p>I'm a {this.props.job}</p>
+				)
+			}
+		}
+		ReactDOM.render(
+			<Describe name='len' job='developer'/>,
+			document.getElementById('app')
+		)
+	</script>
+</body>
+</html>
