@@ -82,5 +82,25 @@ ReactDOM.render(
 )
 ```
 
+## State
+
+state是私有的，受控于当前组件。不要直接修改state，而是需要通过`setState()`来给state赋值，构造函数是唯一可以给this.state赋值的地方。
+
+```javascript
+// 错误做法
+this.state.name = 'lai';
+// 正确做法
+this.setState({
+  name: 'len'
+});
+```
+
+## 事件处理
+
+React的事件命名采用小驼峰命名，使用jsx语法只需要传入一个函数作为事件处理函数。
+
+## 条件渲染和列表渲染
+
+一般都是是用元素的ID作为key值，万不得已时可以使用元素索引index来作为key值，可以简单理解为只要需要map方法的元素就需要设置key属性，且必须是唯一值。
 
 

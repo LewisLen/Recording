@@ -26,8 +26,78 @@
 				)
 			}
 		}
+		class Clock extends React.Component{
+			constructor(props){
+				super(props);
+				this.state = {
+					date:new Date(),
+					num: 1,
+					count: 1
+				}
+			}
+			// 组件已经被渲染到DOM中后运行
+			componentDidMount(){
+				this.timerId = setInterval(() => {
+					this.tick()
+				},1000)
+			}
+			//
+			componentWillUnmount(){
+				clearInterval(this.timerId);
+			}
+			tick(){
+				// console.log('tick====');
+				// 没法更新
+				this.state.count++;
+				this.setState((state,props) => ({
+					date: new Date(),
+					num: state.num+1,
+					area: props.area
+				}))
+			}
+			actionTest(){
+				console.log('React事件处理')
+			}
+			render(){
+				return (
+					<div>
+						<h2>Hello,{this.props.area}</h2>
+						<h3>{this.state.num}</h3>
+						<h3>{this.state.count}</h3>
+						<h3>{this.state.area}</h3>
+						<p>I's {this.state.date.toLocaleTimeString()}.</p>
+						<button onClick={this.actionTest}>点击处理</button>
+					</div>
+				)
+			}
+		}
+		// 条件渲染
+		class ShowCom extends React.Component{
+			constructor(props){
+				super(props)
+			}
+			render(){
+				const isNewUsr = this.props.isLoggedIn;
+				if(isNewUsr){
+					return <Describe name='len' job='developer'/>
+				}
+				return <Clock area="ShenZhen" className="RBtn"/>
+			}
+		}
+		// 列表渲染
+		class TodoList extends React.Component{
+			render(){
+				const list = [1,2,3];
+				const listItems = list.map(number => {
+					return <li key={number.toString()}>{number}</li>
+				})
+				console.log(listItems)
+				return <ul>{listItems}</ul>
+			}
+		}
 		ReactDOM.render(
-			<Describe name='len' job='developer'/>,
+			// <ShowCom isLoggedIn={true} />,
+			<TodoList/>,
 			document.getElementById('app')
 		)
 	</script>
