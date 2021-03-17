@@ -81,19 +81,77 @@ ReactDOM.render(
   document.getElementById('app')
 )
 ```
-
 ## State
 
 state是私有的，受控于当前组件。不要直接修改state，而是需要通过`setState()`来给state赋值，构造函数是唯一可以给this.state赋值的地方。
 
 ```javascript
-// 错误做法
-this.state.name = 'lai';
-// 正确做法
-this.setState({
-  name: 'len'
-});
+// js
+class Phone extends React.Component{
+  constructor(props){
+    super(props)
+    // 解决this指向问题
+    this.checkTypeFn = this.checkType.bind(this);
+    // 对于赋值语句，要从右边开始看，起初this(实例对象)上是没有checkType这个方法的，会从原型（Phone原型）上找到方法。执行完this.checkType.bind(this)之后，会生成一个新的函数，并且函数里的this是指向实例对象（通过bind传入）的，再将这个方法赋值给实例对象的checkTypeFn
+    this.state = {
+      IOS: true
+    }
+  }
+  render(){
+    // 这里如果是直接调用this.checkType，则并不是通过Phone的实例对象调用checkType方法的，而是直接调用，直接调用因为自定义方法里开启了严格模式，所以this会指向undefined。
+    // console.log(this)
+    console.log(this)
+    // return <h2 onClick={this.checkType}>这一是款{this.state.IOS?'苹果':'安卓'}手机</h2>
+    return <h2 onClick={this.checkTypeFn}>这一是款{this.state.IOS?'苹果':'安卓'}手机</h2>
+    // 功过bind之后，这里调用的其实是实例自身的checkType方法
+  }
+  checkType(){
+    // 这里的方法是放在原型对象上，也就是Phone的原型对象上，供实例对象使用
+    // 这里开了自动开启了严格模式
+    // 这里的this是undefined
+    console.log(this)
+    // 错误赋值做法
+    // this.state.IOS = !this.state.IOS;
+    this.setState({
+      IOS: !this.state.IOS
+    })
+  }
+}
+ReactDOM.render(
+  <Phone/>,
+  document.getElementById("app")
+)
 ```
+
+this 指向问题
+
+```javascript
+// 定义普通的类
+class Phone{
+  constructor(type,prices){
+    this.type = type;
+    this.prices = prices;
+  }
+  ringUp(){
+    console.log(this)
+  }
+}
+const huawei = new Phone('华为','3999');
+huawei.ringUp();// Phone实例对象
+const tempPhone = huawei.ringUp;
+tempPhone();// undefined
+function fn(){
+  console.log(this) 
+}
+fn()// window
+function fn2(){
+  'use strict';
+  console.log(this)
+}
+fn2()// undefined
+```
+
+必须注意的是，`constructor`和`render`中，`this`指向的都是类的实例对象，但是在继承类的自定义方法中， `this`指向的原本是`window`，但由于在方法中自动开启了js的严格模式，所以this是`undefined`。
 
 ## 事件处理
 
