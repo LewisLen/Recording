@@ -12,28 +12,47 @@
 <body>
   <div id="app"></div>
 	<script type="text/babel">
-		function BoilingVerdict(props) {
-			if (props.celsius >= 100) {
-				return <p>The water would boil.</p>;
+	// js
+	class Phone extends React.Component{
+		constructor(props){
+			super(props)
+			// 解决this指向问题
+			// constructor的this指向的是Phone的实例对象
+			this.state = {
+				IOS: true,
 			}
-			return <p>The water would not boil.</p>;
+			this.checkTypeFn = this.checkType.bind(this);
+			// 通过打印this可以看出，Phone的原型实例对象上没有checkType方法，checkType方法是在Phone原型对象上，所以这里的语句是将Phone原型上的checkType方法通过bind的方法生成了一个新的方法，方法的this指向的是Phone实例对象上，最后将这个方法赋值给this.checkTypeFn，也就是Phone的实例对象上的方法checkTypeFn。
 		}
-
-		class Calculator extends React.Component{
-			constructor(props){
-				super(props);
-				this.handleChange = this.handleChange.bind(this);
-				this.state = {temperature: ''};
-			}
-			handleChange(e){
-				this.setState({
-					temperature: e.target.value
-				})
-			}
-			render(){
-				
-			}
+		render(){
+			// 这里如果是直接调用this.checkType，则并不是通过Phone的实例对象调用checkType方法的，而是直接调用，直接调用因为自定义方法里开启了严格模式，checkType方法中的this会指向undefined，所以是没法操作到挂在Phone实例对象上的this.state的
+			// console.log(this) render里的this指向Phone的实例对象
+			return (
+				<div>
+					<h2 onClick={this.checkTypeFn} onMouseOver={this.showName}>这一是款{this.state.IOS?'苹果':'安卓'}手机</h2>
+				</div>
+				)
 		}
+		// 另一种改变this的方法是用赋值形式的箭头函数
+		showName = () => {
+			console.log(this);
+		}
+		checkType(){
+			// 这里开了自动开启了严格模式
+			// 这里的this是undefined
+			// console.log(this)
+			// 错误赋值做法
+			// this.state.IOS = !this.state.IOS;
+			// 正确改变state的方式
+			this.setState({
+				IOS: !this.state.IOS
+			})
+		}
+	}
+	ReactDOM.render(
+		<Phone/>,
+		document.getElementById("app")
+	)
 	</script>
 </body>
 </html>

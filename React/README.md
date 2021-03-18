@@ -83,7 +83,7 @@ ReactDOM.render(
 ```
 ## State
 
-state是私有的，受控于当前组件。不要直接修改state，而是需要通过`setState()`来给state赋值，构造函数是唯一可以给this.state赋值的地方。
+state是私有的，受控于当前组件。不要直接修改state，而是需要通过`setState()`来给state赋（合并原有state），构造函数是唯一可以给this.state赋值的地方。
 
 ```javascript
 // js
@@ -151,7 +151,9 @@ function fn2(){
 fn2()// undefined
 ```
 
-必须注意的是，`constructor`和`render`中，`this`指向的都是类的实例对象，但是在继承类的自定义方法中， `this`指向的原本是`window`，但由于在方法中自动开启了js的严格模式，所以this是`undefined`。
+必须注意的是，`constructor`和`render`中，`this`指向的都是类的实例对象，但是在继承类的自定义方法中， `this`指向的原本是`window`，但由于在方法中自动开启了js的严格模式，所以this是`undefined`。解决this指向问题可以通过绑定this或者使用赋值语句箭头函数。箭头函数是放在实例自身上的方法。
+
+> setState()方法是在React.Component的原型对象上
 
 ## 事件处理
 
