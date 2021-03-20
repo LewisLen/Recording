@@ -155,6 +155,86 @@ fn2()// undefined
 
 > setState()方法是在React.Component的原型对象上
 
+## Props
+
+ES6中的static关键字表示该属性或者方法不会被实例继承，而是类直接调用的属性
+
+
+constructor 构造器属性在React中一般用于两种情况：
+
+1. 通过this.state赋值对象初始化内部state
+2. 为事件处理函数绑定实例
+3. 获取实例props
+
+所以可以通过构造函数spuer在构造函数中获取`this.props`，但是
+
+```javascript
+class Books extends React.Component{
+  // constructor构造函数可写可不写
+  constructor(props){
+    super(props);
+    console.log(this.props);// 能够获取到props
+    // 如果没有使用super接收props，则没法获取实例props
+  }
+  static propTypes = {
+    title: PropTypes.string.isRequired, // 限制类型和是否必传
+    price: PropTypes.number,
+    author: PropTypes.string
+  }
+  static defaultProps = {
+    price: 99 // 设置props默认值
+  }
+  render(){
+    const {title,price,author} = this.props;
+    return (
+      <ul>
+        <li>书名：{title}</li>
+        <li>作者: {author}</li>
+        <li>价格：{price}</li>
+      </ul>
+    )
+  }
+}
+// 相当于static写法
+Books.propTypes = {
+  title: PropTypes.string.isRequired, // 限制类型和是否必传
+  price: PropTypes.number,
+  author: PropTypes.string
+}
+Books.defaultProps = {
+  price: 99 // 设置props默认值
+}
+
+ReactDOM.render(
+  <Books title="红楼梦" author="曹雪芹" />,
+  document.getElementById('app')
+)
+```
+
+除了类式组件，还可以通过函数式组件获取props
+
+```javascript
+function Books(props){
+  // 通过props参数也能够获取到props
+  const {title,price,author} = this.props;
+  return (
+    <ul>
+      <li>书名：{title}</li>
+      <li>作者: {author}</li>
+      <li>价格：{price}</li>
+    </ul>
+  )
+}
+// 和定义Books属性也是一样的
+Books.propTypes = {};
+Book.defaultProps = {};
+
+ReactDOM.render(
+  <Books title="红楼梦" author="曹雪芹" />,
+  document.getElementById('app')
+)
+```
+
 ## 事件处理
 
 React的事件命名采用小驼峰命名，使用jsx语法只需要传入一个函数作为事件处理函数。

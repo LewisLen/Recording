@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>React</title>
+  <script src="./lib/react16.14.0.development.js"></script>
+  <script src="./lib/react-dom16.14.0.development.js"></script>
+  <script src="./lib/babel.min.js"></script>
+  <script src="./lib/prop-types.min.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="text/babel">
+    class Books extends React.Component{
+      static propTypes = {
+        title: PropTypes.string.isRequired, // 限制类型和是否必传
+        price: PropTypes.number,
+        author: PropTypes.string
+      }
+      static defaultProps = {
+        price: 99 // 设置props默认值
+      }
+      render(){
+        const {title,price,author} = this.props;
+        return (
+          <ul>
+            <li>书名：{title}</li>
+            <li>作者: {author}</li>
+            <li>价格：{price}</li>
+          </ul>
+        )
+      }
+    }
+    ReactDOM.render(
+      <Books title="红楼梦" author="曹雪芹" />,
+      document.getElementById('app')
+    )
+  </script>
+</body>
+</html>
