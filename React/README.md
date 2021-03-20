@@ -218,10 +218,47 @@ ReactDOM.render(
 )
 ```
 
+## ref
+
+React 支持一个特殊的、可以附加到任何组件上的 ref 属性，此属性可以是一个由 React.createRef() 函数创建的对象、或者一个回调函数、或者一个字符串（遗留 API）。当 ref 属性是一个回调函数时，此函数会（根据元素的类型）接收底层 DOM 元素或 class 实例作为其参数，慎用ref属性
+
+```javascript
+class TodoList extends React.Component{
+  // 调用后可以返回一个容器，存储ref所标示的节点
+  tempRef = React.createRef();
+  showInfo = () => {
+    const {li} = this;
+    console.log(li)
+  }
+  showDomInfo = (ref) => {
+    console.log(ref)
+  }
+  showTempRef = () => {
+    console.log(this.tempRef.current);// ref节点
+  }
+  render(){
+    console.log(this);
+    return (
+      <ul>
+        <li ref="studyLi">学习React</li>
+        <li ref={(li) => {this.li2 = li}}>使用React</li>
+        <li ref={this.showDomInfo}>使用React</li>
+        <li ref={this.tempRef}>巩固React</li>
+      </ul>
+    )
+  }
+}
+ReactDOM.render(
+  <TodoList/>,
+  document.getElementById('app')
+)
+```
+
+如果 ref 回调函数是以内联函数的方式定义的，在更新过程中它会被执行两次，第一次传入参数 null，然后第二次会传入参数 DOM 元素。
 
 ## 事件处理
 
-React的事件命名采用小驼峰命名，使用jsx语法只需要传入一个函数作为事件处理函数。
+React的事件命名采用小驼峰命名，使用jsx语法只需要传入一个函数作为事件处理函数。需要注意的是，React的事件处理如`onClick`并不是原生DOM事件，而是React自定义事件，是通过事件委托的方式（委托给最外层元素）来处理的，可以通过`event.target`得到发生的DOM元素对象。
 
 ## 条件渲染和列表渲染
 
