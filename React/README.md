@@ -65,22 +65,6 @@ ReactDOM.render(
 
 > 类式组件：React在找到componet组件之后，new 一个实例出来，并通过该实例调用到组件(B)原型上的render方法
 
-## Props
-
-props是只读的，组件没法修改自身的props。
-
-```javascript
-class Welcome extends React.Component{
-  render(){
-    // 通过this可以获取props，这里的this指向的是Welcome的实例对象
-    return <h1>Hello,{this.props.name}</h1>
-  }
-}
-ReactDOM.render(
-  <Welcome name="Len"/>,// 在React内部做了new实例的操作
-  document.getElementById('app')
-)
-```
 ## State
 
 state是私有的，受控于当前组件。不要直接修改state，而是需要通过`setState()`来给state赋（合并原有state），构造函数是唯一可以给this.state赋值的地方。
@@ -157,8 +141,7 @@ fn2()// undefined
 
 ## Props
 
-ES6中的static关键字表示该属性或者方法不会被实例继承，而是类直接调用的属性
-
+ES6中的static关键字表示该属性或者方法不会被实例继承，而是类直接调用的属性，利用static关键字给类式组件添加props，props属性是只读的。
 
 constructor 构造器属性在React中一般用于两种情况：
 
@@ -234,6 +217,7 @@ ReactDOM.render(
   document.getElementById('app')
 )
 ```
+
 
 ## 事件处理
 
