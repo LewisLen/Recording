@@ -296,6 +296,46 @@ class Welcome extends React.Component{
 > 受控组件：输入类的值维护到状态state中，需要用到时从状态tate中取(不用写那么多ref)
 > 非受控组件：输入类组件的值现用现取(需要一对一的ref)
 
+## 生命周期
+
+- mount挂载
+- unmount卸载
+
+```javascript
+class Welcome extends React.Component{
+  constructor(props){
+    // this指向实例对象
+    super(props);
+    this.state = {}
+  }
+  showInfo = () => {
+    // 经过箭头函数赋值语句之后，this也是指向实例对象
+    console.log(this.props.name);
+  }
+  // 组件已挂在钩子函数
+  componentDidMount(){
+    // this指向实例对象
+    console.log(this);
+  }
+  // 组件将要卸载
+  componentWillUnmount(){
+
+  }
+  render(){
+    // this指向实例对象
+    return (
+      <div>
+        <h1>Hello,{this.props.name}</h1>
+      </div>
+    )
+  }
+}
+ReactDOM.render({
+  <Welcome/>,
+  document.getElementById('app');
+})
+```
+
 ## 条件渲染和列表渲染
 
 一般都是是用元素的ID作为key值，万不得已时可以使用元素索引index来作为key值，可以简单理解为只要需要map方法的元素就需要设置key属性，且必须是唯一值。
