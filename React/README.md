@@ -298,8 +298,7 @@ class Welcome extends React.Component{
 
 ## 生命周期
 
-- mount挂载
-- unmount卸载
+生命周期钩子函数执行顺序：constructor、componentWillMount、render、componentDidMount
 
 ```javascript
 class Welcome extends React.Component{
