@@ -16,9 +16,30 @@
   <div id="app"></div>
   <script type="text/babel">
     class Welcome extends React.Component{
+      constructor(){
+        super()
+        this.state = {
+          userName: '',
+          passWord: ''
+        }
+      }
+      showInfo = (inputType) => {
+        return (event) => {
+          this.setState({
+            [inputType]: event.target.value
+          })
+          console.log(inputType,event.target.value)
+        }
+      }
       render(){
         // 通过this可以获取props，这里的this指向的是Welcome的实例对象
-        return <h1>Hello,{this.props.name}</h1>
+        return (
+          <div>
+            用户名：<input type="text" onChange={this.showInfo('userName')} />
+            密码： <input type="password" onChange={this.showInfo('passWord')} />
+            <button>登录</button>
+          </div>
+        )
       }
     }
     ReactDOM.render(

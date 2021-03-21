@@ -260,6 +260,42 @@ ReactDOM.render(
 
 React的事件命名采用小驼峰命名，使用jsx语法只需要传入一个函数作为事件处理函数。需要注意的是，React的事件处理如`onClick`并不是原生DOM事件，而是React自定义事件，是通过事件委托的方式（委托给最外层元素）来处理的，可以通过`event.target`得到发生的DOM元素对象。
 
+```javascript
+class Welcome extends React.Component{
+  constructor(){
+    super()
+    this.state = {
+      userName: '',
+      passWord: ''
+    }
+  }
+  showInfo = (inputType) => {
+    return (event) => {
+      this.setState({
+        [inputType]: event.target.value
+      })
+      console.log(inputType,event.target.value)
+    }
+  }
+  render(){
+    // 通过this可以获取props，这里的this指向的是Welcome的实例对象
+    return (
+      <div>
+        用户名：<input type="text" onChange={this.showInfo('userName')} />
+        密码： <input type="password" onChange={this.showInfo('passWord')} />
+        <button>登录</button>
+      </div>
+    )
+  }
+}
+```
+
+> 使用 JSX 语法时你需要传入一个函数作为事件处理函数，而不是一个字符串。必须保证传给事件处理的是一个函数(方法)
+> 高阶函数：若函数fn接收的参数是一个函数，那么fn可以称之为高阶函数。或者若fn函数，调用的返回值依然是一个函数，那么fn可以称之为高阶函数。如Promise、setTimeout、Array.map
+> 函数柯里化：把接受多个参数的函数变成接受一个单一函数的函数，并且返回接收余下的参数而且返回结果的新函数的技术。
+> 受控组件：输入类的值维护到状态state中，需要用到时从状态tate中取(不用写那么多ref)
+> 非受控组件：输入类组件的值现用现取(需要一对一的ref)
+
 ## 条件渲染和列表渲染
 
 一般都是是用元素的ID作为key值，万不得已时可以使用元素索引index来作为key值，可以简单理解为只要需要map方法的元素就需要设置key属性，且必须是唯一值。
