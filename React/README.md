@@ -298,41 +298,118 @@ class Welcome extends React.Component{
 
 ## 生命周期
 
-生命周期钩子函数执行顺序：constructor、componentWillMount、render、componentDidMount
+挂载时生命周期钩子函数执行顺序：constructor、componentWillMount、render、componentDidMount、componentWillUnmount
+组件更新时：shouldComponentUpdata(强制更新无这一步)、componentWillUpdata、render、componentDidUpdate、componentWillUnmount
+
+父组件改变state时：
+- (父组件)shouldComponentUpdata
+- (父组件)componentWillUpdata
+- (父组件)render
+- (子组件)componentWillReceiveProps
+- (子组件)shouldComponentUpdata
+- (子组件)componentWillUpdate
+- (子组件)componentDidUpdate
+- (父组件)componentDidUpdate
+
+
+常用组件：
+
+- componentDidMount: 常用于初始化，如开启定时器、发网络请求、订阅消息
+- componentWillUnmount: 关闭定时器、取消订阅消息
 
 ```javascript
 class Welcome extends React.Component{
   constructor(props){
+    console.log('Welcome--constructor');
     // this指向实例对象
     super(props);
-    this.state = {}
+    this.state = {
+      count: 1
+    }
   }
-  showInfo = () => {
-    // 经过箭头函数赋值语句之后，this也是指向实例对象
-    console.log(this.props.name);
+  addCount = () => {
+    this.setState({
+      count: this.state.count+1
+    })
   }
-  // 组件已挂在钩子函数
+  tempUnmount = () => {
+    ReactDOM.unmountComponentAtNode(document.getElementById('app'));
+  }
+  // 强制更新
+  forceChangeData = () => {
+    this.forceUpdate();
+  }
+  // 组件将要挂载
+  componentWillMount(){
+    console.log('Welcome--componentWillMount');
+  }
+  // 组件已挂载
   componentDidMount(){
     // this指向实例对象
-    console.log(this);
+    console.log('Welcome--componentDidMount');
   }
   // 组件将要卸载
   componentWillUnmount(){
-
+    console.log('Welcome--componentWillUnmount');
+  }
+  // 告知组件是否要更新，默认返回true（forceUpdate强制更新不会调用这个钩子函数）
+  shouldComponentUpdate(){
+    console.log('Welcome--shouldComponentUpdate');
+    return true;
+  }
+  // 组件将要更新
+  componentWillUpdate(){
+    console.log('Welcome--componentWillUpdate');
+  }
+  // 组件已经更新
+  componentDidUpdate(){
+    console.log('Welcome--componentDidUpdate');
   }
   render(){
+    console.log('Welcome--render');
     // this指向实例对象
+    const {count} = this.state;
     return (
       <div>
         <h1>Hello,{this.props.name}</h1>
+        <p>{count}</p>
+        <button onClick={this.addCount}>加+++</button>
+        <button onClick={this.tempUnmount}>卸载组件</button>
+        <button onClick={this.forceChangeData}>不改变数据，强制更新</button>
+        <A count={count}/>
       </div>
     )
   }
+} 
+class A extends React.Component{
+  constructor(props){
+    super(props)
+  }
+  // 子组件将要接收新的props
+  componentWillReceiveProps(props){
+    console.log('A--componentWillReceiveProps',props);
+  }
+  // 告知组件是否要更新，默认返回true（forceUpdate强制更新不会调用这个钩子函数）
+  shouldComponentUpdate(){
+    console.log('A--shouldComponentUpdate');
+    return true;
+  }
+  // 组件将要更新
+  componentWillUpdate(){
+    console.log('A--componentWillUpdate');
+  }
+  // 组件已经更新
+  componentDidUpdate(){
+    console.log('A--componentDidUpdate');
+  }
+  render(){
+    return <h2>{this.props.count}</h2>
+  }
 }
-ReactDOM.render({
-  <Welcome/>,
-  document.getElementById('app');
-})
+ReactDOM.render(
+  <Welcome name="Len"/>,
+  document.getElementById('app')
+)
 ```
 
 ## 条件渲染和列表渲染
