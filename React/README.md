@@ -311,9 +311,7 @@ class Welcome extends React.Component{
 - (子组件)componentDidUpdate
 - (父组件)componentDidUpdate
 
-
 常用组件：
-
 - componentDidMount: 常用于初始化，如开启定时器、发网络请求、订阅消息
 - componentWillUnmount: 关闭定时器、取消订阅消息
 
@@ -410,6 +408,41 @@ ReactDOM.render(
   <Welcome name="Len"/>,
   document.getElementById('app')
 )
+```
+
+## 新版生命周期(17及以上版本)
+
+三个生命周期钩子函数被重命名了（有可能被弃用）
+
+- UNSAFE_componentWillUpdata
+- UNSAFE_componentWillUpdate
+- UNSAFE_componentWillReceiveProps
+
+新增两个钩子函数：
+
+- getDerivedStateFromProps（挂载和更新都会调用），比较少用到
+- getSnapshotBeforeUpdate
+
+```javascript
+class A extends from React.Component{
+  constructor(props){
+    super(props);
+    this.state = {
+      count: 1
+    }
+  }
+  // 需加静态方法关键字
+  static getDerivedStateFromProps(props,state){
+    // 接收一个props，返回一个null或者一个状态对象
+    return {
+      // 当放回的是null的时，实例对象的state还能被操作
+      // 当返回的是state状态对象时，则永久改变了state的值，且不能被改变了
+      // 可以将接收过来的props作为state设置，这就是state从props派生过来
+      // state值在任何时候都取决props值
+      count: 100
+    }
+  }
+}
 ```
 
 ## 条件渲染和列表渲染
