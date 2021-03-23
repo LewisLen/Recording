@@ -421,7 +421,7 @@ ReactDOM.render(
 新增两个钩子函数：
 
 - getDerivedStateFromProps（挂载和更新都会调用），比较少用到
-- getSnapshotBeforeUpdate
+- getSnapshotBeforeUpdate 在更新之前获取props和state的快照，将return值传递给`componentDidUpdate`
 
 ```javascript
 class A extends from React.Component{
@@ -441,6 +441,10 @@ class A extends from React.Component{
       // state值在任何时候都取决props值
       count: 100
     }
+  }
+  getSnapshotBeforeUpdate(){
+    // 会将return值传给componentDidUpdate(prevProps,prevState)
+    return ""
   }
 }
 ```
