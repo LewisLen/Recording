@@ -453,4 +453,13 @@ class A extends from React.Component{
 
 一般都是是用元素的ID作为key值，万不得已时可以使用元素索引index来作为key值，可以简单理解为只要需要map方法的元素就需要设置key属性，且必须是唯一值。
 
+在列表渲染中，key值是虚拟DOM的标识，在更新显示时key起着极其重要的作用。当数据发生变化时，react会根据新数据生成新的虚拟DOM，随后React进行新虚拟DOM与旧虚拟DOM的diff比较。
+
+当旧虚拟DOM中找到了与新虚拟DOM相同的key值时，如果虚拟DOM中内容没变，则直接使用之前的真实DOM。若虚拟DOM中的内容变了，则生成新的真实DOM，随后替换页面中之前的真实DOM。
+当旧虚拟DOM中未找到与新虚拟DOM相同的key值时，根据数据创建新的真实DOM，渲染到页面
+
+## DOM的diffing算法
+
+
+
 
