@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>React</title>
+  <!-- react核心裤 -->
+  <script src="./lib/react16.14.0.development.js"></script>
+  <!-- react操作dom -->
+  <script src="./lib/react-dom16.14.0.development.js"></script>
+  <!-- 编译jsx -->
+  <script src="./lib/babel.min.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="text/babel">
+    class Time extends React.Component{
+      constructor(props){
+        super(props)
+        this.state = {
+          time: new Date()
+        }
+      }
+      componentDidMount(){
+        setInterval(() => {
+          this.setState({
+            time: new Date()
+          })
+        },1000)
+      }
+      render(){
+        return (
+          <div>
+            <h2>Hello,Len</h2>
+            <p>
+              <span>时间：{this.state.time.toString()}</span>
+              <span>最小颗粒更新</span>  
+            </p>
+            <Books/>
+          </div>
+        )
+      }
+    }
+    class Books extends React.Component{
+      constructor(){
+        super();
+        this.state ={
+          fruits: [
+            {id:1,name:'apple',text:'苹果'},
+            {id:2,name:'banner',text:'香蕉'}
+          ]
+        }
+      }
+      addFruit = () => {
+        let {fruits} = this.state;
+        let p = {
+          id: fruits.length,
+          name: 'pineapple',
+          text: '菠萝'
+        }
+        this.setState({
+          fruits:[
+            p,
+            ...fruits
+          ]
+        })
+      }
+      render(){
+          let {fruits} = this.state
+          return (
+            <div>
+              <button onClick={this.addFruit}>添加一个水果</button>
+            <ul>
+              {
+                fruits.map((item,index) => {
+                  return <li key={item.id}>{item.name}-{item.text}</li>
+                })
+              }
+            </ul>
+            </div>
+          )
+      }
+    }
+    ReactDOM.render(
+      <Time/>,
+      document.getElementById('app')
+    )
+  </script>
+</body>
+</html>

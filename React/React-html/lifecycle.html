@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>React</title>
+  <script src="./lib/react16.14.0.development.js"></script>
+  <script src="./lib/react-dom16.14.0.development.js"></script>
+  <script src="./lib/babel.min.js"></script>
+  <script src="./lib/prop-types.min.js"></script>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="text/babel">
+    class Welcome extends React.Component{
+      constructor(props){
+        console.log('Welcome--constructor');
+        // this指向实例对象
+        super(props);
+        this.state = {
+          count: 1
+        }
+      }
+      addCount = () => {
+        this.setState({
+          count: this.state.count+1
+        })
+      }
+      tempUnmount = () => {
+        ReactDOM.unmountComponentAtNode(document.getElementById('app'));
+      }
+      // 强制更新
+      forceChangeData = () => {
+        this.forceUpdate();
+      }
+      // 组件将要挂载
+      componentWillMount(){
+        console.log('Welcome--componentWillMount');
+      }
+      // 组件已挂载
+      componentDidMount(){
+        // this指向实例对象
+        console.log('Welcome--componentDidMount');
+      }
+      // 组件将要卸载
+      componentWillUnmount(){
+        console.log('Welcome--componentWillUnmount');
+      }
+      // 告知组件是否要更新，默认返回true（forceUpdate强制更新不会调用这个钩子函数）
+      shouldComponentUpdate(){
+        console.log('Welcome--shouldComponentUpdate');
+        return true;
+      }
+      // 组件将要更新
+      componentWillUpdate(){
+        console.log('Welcome--componentWillUpdate');
+      }
+      // 组件已经更新
+      componentDidUpdate(){
+        console.log('Welcome--componentDidUpdate');
+      }
+      render(){
+        console.log('Welcome--render');
+        // this指向实例对象
+        const {count} = this.state;
+        return (
+          <div>
+            <h1>Hello,{this.props.name}</h1>
+            <p>{count}</p>
+            <button onClick={this.addCount}>加+++</button>
+            <button onClick={this.tempUnmount}>卸载组件</button>
+            <button onClick={this.forceChangeData}>不改变数据，强制更新</button>
+            <A count={count}/>
+          </div>
+        )
+      }
+    }
+    class A extends React.Component{
+      constructor(props){
+        super(props)
+      }
+      // 子组件将要接收新的props
+      componentWillReceiveProps(props){
+        console.log('A--componentWillReceiveProps',props);
+      }
+      // 告知组件是否要更新，默认返回true（forceUpdate强制更新不会调用这个钩子函数）
+      shouldComponentUpdate(){
+        console.log('A--shouldComponentUpdate');
+        return true;
+      }
+      // 组件将要更新
+      componentWillUpdate(){
+        console.log('A--componentWillUpdate');
+      }
+      // 组件已经更新
+      componentDidUpdate(){
+        console.log('A--componentDidUpdate');
+      }
+      render(){
+        return <h2>{this.props.count}</h2>
+      }
+    }
+    ReactDOM.render(
+      <Welcome name="Len"/>,
+      document.getElementById('app')
+    )
+  </script>
+</body>
+</html>
