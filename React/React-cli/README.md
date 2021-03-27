@@ -4,7 +4,7 @@
 
 ```shell
 # npm5.2后自带npx
-npm create-react-app react-demo
+npx create-react-app react-demo
 # 或者
 npm i create-react-app -g # 全局安装react脚手架
 create-react-app react-demo # 初始化项目
