@@ -1,0 +1,26 @@
+.todo-item{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  line-height: 50px;
+  border-bottom: 1px solid #ccc;
+}
+.todo-item input{
+  width: 16px;
+  height: 16px;
+}
+.todo-item span{
+  font-size: 20px;
+  display: inline-block;
+  margin-left: 10px;
+}
+.todo-item button{
+  background-color: rgb(228, 66, 50);;
+  border: 1px solid rgb(228, 66, 50);
+  border-radius: 6px;
+  color: #fff;
+  width: 80px;
+  height: 34px;
+  margin-right: 10px;
+}

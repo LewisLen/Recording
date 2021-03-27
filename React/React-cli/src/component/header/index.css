@@ -1,0 +1,9 @@
+.wrap-input{
+  width: 800px;
+  height: 60px;
+  font-size: 24px;
+  display: block;
+  margin:0 auto;
+  border:1px solid #ccc;
+  text-indent: 20px;
+}

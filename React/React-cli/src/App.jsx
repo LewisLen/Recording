@@ -1,5 +1,7 @@
 // 默认暴露和分别暴露
 import React, { Component } from 'react';
+import './App.css';
+import Footer from './component/footer';
 import Header from './component/header';
 import List from './component/list';
 
@@ -20,21 +22,13 @@ export default class App extends Component{
     this.setState({
       todoList: newTodoList
     })
-
-
-
-
-
-
-
-
-
   }
   render(){
     return (
-      <div>
+      <div className="todo-wrap">
         <Header addTodoItem={this.addTodoItem}/>
         <List todoList={this.state.todoList}/>
+        <Footer/>
       </div>
     )
   }

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import './index.css';
 
 export default class Header extends Component {
   handlekeyUp = (event) => {
@@ -19,9 +20,7 @@ export default class Header extends Component {
   }
   render() {
     return (
-      <div>
-        <input type="text" onKeyUp={this.handlekeyUp}/>
-      </div>
+      <input type="text" className="wrap-input" onKeyUp={this.handlekeyUp}/>
     )
   }
 }
