@@ -44,12 +44,32 @@ export default class App extends Component{
       todoList:newTodoList
     })
   }
+  // 全选
+  checkAllItem = (done) => {
+    const newTodoList = this.state.todoList.map(itemObj => {
+      return {...itemObj,done}
+    })
+    this.setState({
+      todoList: newTodoList
+    })
+  }
+  // 删除选中
+  deleteCheckedItem = () => {
+    // console.log(this.newTodoList)
+    const newTodoList = this.state.todoList.filter(itemObj => {
+      return !itemObj.done
+    })
+    this.setState({
+      todoList: newTodoList
+    })
+  }
   render(){
+    let {todoList} = this.state;
     return (
       <div className="todo-wrap">
         <Header addTodoItem={this.addTodoItem}/>
-        <List todoList={this.state.todoList} changeListItemFlag={this.updateItemFlag} deleteItem={this.deleteItem}/>
-        <Footer/>
+        <List todoList={todoList} changeListItemFlag={this.updateItemFlag} deleteItem={this.deleteItem}/>
+        <Footer todoList={todoList} checkAllItem={this.checkAllItem} deleteCheckedItem={this.deleteCheckedItem}/>
       </div>
     )
   }

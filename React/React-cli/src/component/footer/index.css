@@ -1,0 +1,22 @@
+.todo-footer{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.todo-footer input{
+  width: 16px;
+  height: 16px;
+  margin-right: 10px;
+}
+.todo-footer span{
+  margin-left: 6px;
+  margin-right: 6px;
+}
+.todo-footer button{
+  background-color: rgb(228, 66, 50);;
+  border: 1px solid rgb(228, 66, 50);
+  border-radius: 6px;
+  color: #fff;
+  height: 34px;
+  margin-right: 10px;
+}
