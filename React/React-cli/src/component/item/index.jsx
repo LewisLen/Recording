@@ -5,10 +5,9 @@ export default class Item extends Component {
   state = {
     mouseFlag: false
   }
-  // 鼠标跟随样式 直接传值，用高阶函数回调
+  // 鼠标跟随样式，直接传值，用高阶函数回调
   handleMouse = (flag) => {
     return () => {
-      // console.log(flag)
       this.setState({
         mouseFlag:flag
       })

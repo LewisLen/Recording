@@ -13,8 +13,9 @@ export default class App extends Component{
       {id:'003',name:'打豆豆',done:true},
     ]
   }
-  // 新增一个todo项
+  // 新增一个todo项，传递一个事件给子组件
   addTodoItem = (itemObj) => {
+    // 解构赋值的方式在数组开头新增了一项值
     const newTodoList = [
       itemObj,
       ...this.state.todoList
@@ -36,7 +37,6 @@ export default class App extends Component{
   }
   // 删除item
   deleteItem = (id) => {
-    // console.log(id)
     const newTodoList = this.state.todoList.filter((item) => {
       return item.id !== id;
     })
@@ -55,7 +55,6 @@ export default class App extends Component{
   }
   // 删除选中
   deleteCheckedItem = () => {
-    // console.log(this.newTodoList)
     const newTodoList = this.state.todoList.filter(itemObj => {
       return !itemObj.done
     })
@@ -68,6 +67,7 @@ export default class App extends Component{
     return (
       <div className="todo-wrap">
         <Header addTodoItem={this.addTodoItem}/>
+        {/* 传递todolist到list展示 */}
         <List todoList={todoList} changeListItemFlag={this.updateItemFlag} deleteItem={this.deleteItem}/>
         <Footer todoList={todoList} checkAllItem={this.checkAllItem} deleteCheckedItem={this.deleteCheckedItem}/>
       </div>

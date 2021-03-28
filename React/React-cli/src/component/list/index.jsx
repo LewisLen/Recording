@@ -3,12 +3,12 @@ import React, { Component } from 'react';
 import Item from '../item';
 import './index.css';
 
-
 export default class List extends Component {
     // 对props进行限制
     static propTypes = {
       changeListItemFlag: PropTypes.func.isRequired,
-      todoList: PropTypes.array.isRequired
+      todoList: PropTypes.array.isRequired,
+      deleteItem: PropTypes.array.isRequired
     }
   // 向子组件传递props事件
   changeItemFlag = (id,done) => {
