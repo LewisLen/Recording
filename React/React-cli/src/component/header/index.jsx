@@ -1,7 +1,12 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import './index.css';
 
 export default class Header extends Component {
+  // 对props进行限制
+  static propTypes = {
+    addTodoItem: PropTypes.func.isRequired
+  }
   handlekeyUp = (event) => {
     let {target,keyCode} = event;
     console.log(keyCode)
