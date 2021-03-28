@@ -57,3 +57,55 @@ import test from './index.module.css';
   return <div className={test.title}></div>
 }
 ```
+
+## 配置代理
+
+在package.json中或者setupProxy.js中配置代理信息
+
+```json
+// package.json
+"proxy":"http://localhost:5000"
+```
+```javascript
+// 新建一个setupProxy.js文件，react会自动读取
+const proxy = require('http-proxy-middleware');
+module.exports = function(app){
+  app.use(
+    proxy('/len',{
+      target: 'http://localhost:5000',
+      changeorigin: true,
+      pathRewrite: {
+        '^/len':'' // 重写请求路径，保证路径正确
+      }
+    })
+    proxy('/len2',{
+      target: 'http://localhost:5002',
+      changeorigin: true,
+      pathRewrite: {
+        '^/len2':'' // 重写请求路径，保证路径正确
+      }
+    })
+  )
+}
+```
+
+## 发布订阅模式
+
+兄弟组件之间的通信可以使用发布订阅模式，使用`pubsub-js`库可以实现父子组件之间的通信，而不是通过两组件的父组件
+
+```javascript
+// npm install pubsub-js -s 之后
+// 发布消息
+PubSub.publish('GETPRODUCTLIST', res.data);
+// 订阅/接收消息
+componentDidMount(){
+  this.token = PubSub.subscribe('GETPRODUCTLIST', (msg,data) => {
+    // msg 是消息名GETPRODUCTLIST
+    console.log("订阅消息======",data)
+  });
+}
+componentWillUnmount(){
+  // 在组件卸载时解除订阅消息
+  PubSub.unsubscribe(this.token);
+}
+```

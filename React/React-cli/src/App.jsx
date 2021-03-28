@@ -4,7 +4,8 @@ import './App.css';
 import Footer from './component/footer';
 import Header from './component/header';
 import List from './component/list';
-
+import SearchHeader from './component/searchHeader';
+import SearchList from './component/searchList';
 export default class App extends Component{
   state = {
     todoList:[
@@ -70,6 +71,8 @@ export default class App extends Component{
         {/* 传递todolist到list展示 */}
         <List todoList={todoList} changeListItemFlag={this.updateItemFlag} deleteItem={this.deleteItem}/>
         <Footer todoList={todoList} checkAllItem={this.checkAllItem} deleteCheckedItem={this.deleteCheckedItem}/>
+        <SearchHeader />
+        <SearchList />
       </div>
     )
   }
