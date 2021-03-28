@@ -21,15 +21,21 @@ export default class Item extends Component {
       this.props.changeItemFlag(id,event.target.checked);
     }
   }
+  // 删除item
+  deleteItem = (id) => {
+    return () => {
+      this.props.deleteItem(id)
+    }
+  }
   render() {
     const {id,name,done} = this.props;
     return (
         <li className="todo-item" key={id} onMouseEnter={this.handleMouse(true)} onMouseLeave={this.handleMouse(false)} style={{backgroundColor: this.state.mouseFlag?"#ddd":"#fff"}}>
           <label>
             <input type="checkbox" defaultChecked={done} onChange={this.handleCheckChange(id)}/>
-            <span>{name}</span>
+            <span style={{"text-decoration":done?"line-through":"none"}}>{name}</span>
           </label>
-          <button style={{display: this.state.mouseFlag?"block":"none"}}>删除</button>
+          <button style={{display: this.state.mouseFlag?"block":"none"}} onClick={this.deleteItem(id)}>删除</button>
         </li>
     )
   }

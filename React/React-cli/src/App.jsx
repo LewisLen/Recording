@@ -34,11 +34,21 @@ export default class App extends Component{
       todoList:newTodoList
     })
   }
+  // 删除item
+  deleteItem = (id) => {
+    // console.log(id)
+    const newTodoList = this.state.todoList.filter((item) => {
+      return item.id !== id;
+    })
+    this.setState({
+      todoList:newTodoList
+    })
+  }
   render(){
     return (
       <div className="todo-wrap">
         <Header addTodoItem={this.addTodoItem}/>
-        <List todoList={this.state.todoList} changeListItemFlag={this.updateItemFlag}/>
+        <List todoList={this.state.todoList} changeListItemFlag={this.updateItemFlag} deleteItem={this.deleteItem}/>
         <Footer/>
       </div>
     )

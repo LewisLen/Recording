@@ -17,13 +17,13 @@ export default class List extends Component {
   }
   render() {
     // 直接将父组件的props值传给子组件，或者加一层函数处理关系
-    const {todoList,changeListItemFlag} = this.props;
+    const {todoList,changeListItemFlag,deleteItem} = this.props;
     return (
       <div>
         <ul>
           {
             todoList.map(item => {
-              return <Item key={item.id} {...item} changeItemFlag={changeListItemFlag}/>
+              return <Item key={item.id} {...item} changeItemFlag={changeListItemFlag} deleteItem={deleteItem}/>
             })
           }
         </ul>
