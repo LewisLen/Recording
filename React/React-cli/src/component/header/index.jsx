@@ -10,8 +10,9 @@ export default class Header extends Component {
       alert('输入不能为空');
       return;
     }
+    // 子组件向父组件通信 
     this.props.addTodoItem({
-      id: new Date(),
+      id: new Date().getTime(),
       name: target.value,
       done: false
     });

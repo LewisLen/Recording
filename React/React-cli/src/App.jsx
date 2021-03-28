@@ -13,8 +13,8 @@ export default class App extends Component{
       {id:'003',name:'打豆豆',done:true},
     ]
   }
+  // 新增一个todo项
   addTodoItem = (itemObj) => {
-    // console.log(value);
     const newTodoList = [
       itemObj,
       ...this.state.todoList
@@ -23,11 +23,22 @@ export default class App extends Component{
       todoList: newTodoList
     })
   }
+  // 根据子组件checkbox值改变state数据状态
+  updateItemFlag = (id,done) => {
+    const newTodoList = this.state.todoList.map(itemObj => {
+      // 如果匹配上id，则改变done的值
+      if(itemObj.id === id) return {...itemObj,done}
+      return itemObj
+    })
+    this.setState({
+      todoList:newTodoList
+    })
+  }
   render(){
     return (
       <div className="todo-wrap">
         <Header addTodoItem={this.addTodoItem}/>
-        <List todoList={this.state.todoList}/>
+        <List todoList={this.state.todoList} changeListItemFlag={this.updateItemFlag}/>
         <Footer/>
       </div>
     )
