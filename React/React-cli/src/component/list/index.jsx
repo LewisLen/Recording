@@ -8,7 +8,7 @@ export default class List extends Component {
     static propTypes = {
       changeListItemFlag: PropTypes.func.isRequired,
       todoList: PropTypes.array.isRequired,
-      deleteItem: PropTypes.array.isRequired
+      deleteItem: PropTypes.func.isRequired
     }
   // 向子组件传递props事件
   changeItemFlag = (id,done) => {
