@@ -118,4 +118,44 @@ componentWillUnmount(){
 
 ## react-router-dom
 
-使用`react-router-dom`实现前端路由
+react有三种路由库可以使用，分别是`react-router`(通用型)、`react-native`(用于react-native)和`react-router-dom`(用于web)，这里使用`react-router-dom`来实现前端路由，直接安装和引用。
+
+导航栏用Link标签，内容展示区则使用Route标签，同时需在最外层<App>包裹<BrowserRouter>或者<HashRouter>
+
+```jsx
+import { BrowserRouter as Router,Route, Switch,Link } from 'react-router-dom';
+// 路由的跳转使用Link，会转换称a标签
+<Link to="/home">Home</Link>
+// 展示区域
+<Route path="/home" component={Home}></Route>
+// 或者
+<Route path="/home"><Home/></Route>
+// App外层包裹BrowserRouter
+<BrowserRouter>
+  <App/>
+</BrowserRouter>
+```
+
+被路由匹配的组件称之为路由组件，路由组件会接收到三个props信息：`history`、`location`、`match`
+
+```jsx
+import {NavLink} from 'react-router-dom'
+// 有个默认活动高亮的类名
+<NavLink to="/home" activeClassName="active">Home</NavLink>
+// 其中Home作为标签体内容，其实是通过props.children传递的
+<NavLink to="/home" activeClassName="active" children="Home"/>
+```
+
+加`Switch`可以避免需要展示的路由多次匹配
+
+```jsx
+import { Route, Switch } from "react-router-dom";
+<Switch>
+  <Route path="/todo">
+    <Todo />
+  </Route>
+  <Route path="/search">
+    <Search />
+  </Route>
+</Switch>
+```
