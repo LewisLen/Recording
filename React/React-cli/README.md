@@ -109,3 +109,13 @@ componentWillUnmount(){
   PubSub.unsubscribe(this.token);
 }
 ```
+
+## SPA
+
+- 整个应用其实只有一个完整的页面
+- 点击切换链接时不会刷新页面，只会做页面的局部更新
+- 数据都是通过ajax请求获取
+
+## react-router-dom
+
+使用`react-router-dom`实现前端路由
