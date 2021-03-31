@@ -254,3 +254,15 @@ backJump = () => {
   this.props.history.go(1)
 }
 ```
+
+## withRouter
+
+直接调用的组件中是没有三个props信息：`history`、`location`、`match`的，为了能够使一般组件加上三个props信息，则需要借用`withRouter`函数，返回一个新组件。
+
+```jsx
+import {withRouter} from 'react-router-dom'
+class Header extends React.Component{
+
+}
+export default withRouter(Header)
+```
