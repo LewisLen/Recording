@@ -159,3 +159,18 @@ import { Route, Switch } from "react-router-dom";
   </Route>
 </Switch>
 ```
+
+## 静态资源加载失败的问题
+
+在public的html中新增静态资源如css本次链接可能因为路径原因加载失败，解放方法如下：
+
+```jsx
+// 更改引入路径，使用绝对路径
+<link style="/style.css">
+// 使用%PUBLIC_URL%路径(脚手架中的路径)
+<link rel="apple-touch-icon" href="%PUBLIC_URL%/style.css" />
+// 使用HashRouter
+<HashRouter>
+  <App />
+</HashRouter>
+```
