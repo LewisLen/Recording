@@ -1,4 +1,4 @@
-## React脚手架
+`## React脚手架
 
 需提前安装node和npm
 
@@ -183,18 +183,38 @@ import { Route, Switch } from "react-router-dom";
 // 路由重定向
 <Redirect to="/home">
 // 嵌套路由
-<link to="/list/a">
+<Link to="/list/a"></Link>
 // 注册路由
 <Route path="/list/a" component={ListA}/>
 ```
 
-路由传递参数
+路由params传递参数
 
 ```jsx
 // 路由链接传参数
-<link to="/list/detail/01/a>
+<Link to="/list/detail/01/a></Link>
 // 声明接收参数
-<Route path="/list/detail/:id/:title"/>
+<Route path="/list/detail/:id/:title"></Route>
 // 获取参数
 this.props.match.params
 ```
+
+通过search传递获取参数
+
+```jsx
+<Link to={`/list/detail/?id=${id}`}>
+// 无需声明接收 正常的路由跳转即可
+<Route path="/list/detail">
+// 获取，通过querystring将urlencode形式转换为对象的形式
+let {id} = qs.parse(this.props.location.search.slice(1))
+```
+
+通过路由state传递参数，这里的state和状态值是不一样的
+
+```jsx
+<Link to={{pathname:'/list/detail',state:{id:id}}}></Link>
+// 无需声明接收 正常的路由跳转即可
+let {id} = qs.parse(this.props.location.state)
+```
+
+> 三种方式刷新页面参数都不会丢失，因为这个state记录是保存在history中的，除非清除历史记录
