@@ -218,3 +218,39 @@ let {id} = qs.parse(this.props.location.state)
 ```
 
 > 三种方式刷新页面参数都不会丢失，因为这个state记录是保存在history中的，除非清除历史记录
+
+
+## 路由的push和replace
+
+路由默认的跳转方式是push模式，开启replace模式则不会留下痕迹
+
+```jsx
+<Link replace={true} to="/list/detail">
+```
+
+编程式导航
+
+```jsx
+// 通过事件传参的形式
+replaceJump = (id) => {
+  // params方式
+  this.props.history.replace(`/list/detail/${id}`);
+  // search-query方式
+  this.props.history.replace(`/list/detail?id=${id}`);
+  // state方式
+  this.props.history.replace(`/list/detail`,{id});
+}
+pushJump = (id) => {
+  this.props.history.push(`/list/detail/${id}`);
+  this.props.history.push(`/list/detail?id=${id}`);
+}
+// 前进和后退
+backJump = () => {
+  // 后退
+  this.props.history.goBack();
+  // 前进
+  this.props.history.goForward();
+  // 指定跳转
+  this.props.history.go(1)
+}
+```
