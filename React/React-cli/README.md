@@ -174,3 +174,27 @@ import { Route, Switch } from "react-router-dom";
   <App />
 </HashRouter>
 ```
+
+## 路由重定向和嵌套路由
+
+当所有path都不匹配时，则会走路由重定向。嵌套路由(/list/a)，不能在父级(/list)中加`exact`(精准匹配)，因为在匹配路由的时候，是先匹配父级(/list)，然后再匹配(/a)
+
+```jsx
+// 路由重定向
+<Redirect to="/home">
+// 嵌套路由
+<link to="/list/a">
+// 注册路由
+<Route path="/list/a" component={ListA}/>
+```
+
+路由传递参数
+
+```jsx
+// 路由链接传参数
+<link to="/list/detail/01/a>
+// 声明接收参数
+<Route path="/list/detail/:id/:title"/>
+// 获取参数
+this.props.match.params
+```
