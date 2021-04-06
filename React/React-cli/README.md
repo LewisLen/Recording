@@ -160,6 +160,13 @@ import { Route, Switch } from "react-router-dom";
 </Switch>
 ```
 
+BrowserRouter和HashRouter的区别
+
+- 底层原理不一样：BrowserRouter使用的是H5的history API，不兼容IE9及以下版本。HashRouter用的是URL的哈希值
+- url表现形式不一样，HashRouter路径有#
+- 刷新后对路由state参数的影响：BroswerRouter没有影响，因为state是保存在history对象中。HashRouter刷新后会导致路由state参数丢失。
+- HashRouter可以用于解决一些路径错误相关的问题，兼容性更好
+
 ## 静态资源加载失败的问题
 
 在public的html中新增静态资源如css本次链接可能因为路径原因加载失败，解放方法如下：
