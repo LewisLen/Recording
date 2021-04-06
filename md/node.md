@@ -20,3 +20,7 @@ module.exports.bar = function(){return 'bar'};
 
 - global
 - process
+
+## 模块
+
+每个模块都会有预先定义好的变量：require、export、module
