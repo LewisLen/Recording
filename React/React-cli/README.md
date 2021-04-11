@@ -338,3 +338,38 @@ store.subscribe(() => {
 
 })
 ```
+
+## 异步action
+
+redux中的action一般只接收object对象(type,value)，在需要异步改变state值时，需要使用异步action（需借助redux-thunk)
+
+```shell
+# 安装redux-thunk
+npm install redux-thunk --save
+```
+
+借助redux-thunk中间件来使用异步action
+
+```javascript
+// store.js
+import { createStore,applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+
+const store = createStore(reducer,applyMiddleware(thunk));
+export default store;
+
+// action.js
+// 异步action，action的值为函数，异步action中一般都会再调用同步action
+export const createAsyncAction = (data,time) => {
+  // 这里已经时在store中，所以是有dispatch方法
+  return (dispatch) => {
+    setTimeout(() => {
+      // store.dispatch(incrementvalue(data))
+      dispatch(incrementvalue(data))
+    },time)
+  }
+}
+
+// 组件内
+store.dispatch(createAsyncAction(val));
+```
