@@ -281,7 +281,7 @@ export default withRouter(Header)
 npm install redux react-redux --save
 ```
 
-创建store后，用reducer函数来管理store，组件通过action来改变state，最终通过订阅state变化来重新渲染组件。
+创建store后，用reducer函数来管理store，组件通过action来改变state，最终通过订阅state变化来重新渲染组件。reducer被第一次调用时，是store自动触发的，传递的previousState是undefined，action是@@REDUX/INIT
 
 ```javascript
 // store.js
@@ -331,4 +331,10 @@ componentDidMount(){
     this.setState({})
   })
 }
+// 订阅state也可以放到最外层app组件
+// index.js入口文件
+import store from './store'
+store.subscribe(() => {
+
+})
 ```
