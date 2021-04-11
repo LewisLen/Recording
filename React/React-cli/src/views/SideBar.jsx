@@ -8,6 +8,7 @@ export default class SideBar extends Component {
         侧边栏区域
         <Link to="/todo">Todo</Link>
         <Link to="/productList">Search</Link>
+        <Link to="/count">count</Link>
       </div>
     )
   }

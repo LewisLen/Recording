@@ -1,4 +1,4 @@
-`## React脚手架
+## React脚手架
 
 需提前安装node和npm
 
@@ -272,4 +272,63 @@ class Header extends React.Component{
 
 }
 export default withRouter(Header)
+```
+
+## redux
+
+```shell
+# 安装redux
+npm install redux react-redux --save
+```
+
+创建store后，用reducer函数来管理store，组件通过action来改变state，最终通过订阅state变化来重新渲染组件。
+
+```javascript
+// store.js
+import { createStore } from 'redux';
+import reducer from './reducer';
+// 1. 创建store 2. 建立reducer(函数)来管理store
+const store = createStore(reducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()) // 创建数据存储仓库，可以用redux插件查看state变化
+// const store = createStore(reducer);
+export default store;
+
+// reducer.js
+// 初始化state
+const initState = {
+  count: 0
+};
+export default (state = initState,action) => {
+  // reducer函数有两个参数，一个是previousState，一个是action{type,value}
+  const {type,value} = action;
+  // 判断action的type来执行不同的指令
+  if(type === 'INCREMENTVALUE'){
+    let newState = JSON.parse(JSON.stringify(state)) //深度拷贝state
+    // 改变state
+    newState.count = state.count + value
+    // 返回最新的state
+    return newState
+  }else if(type === 'DECREMENTVALUE'){
+    let newState = JSON.parse(JSON.stringify(state)) //深度拷贝state
+    newState.count = state.count - value
+    return newState
+  }
+  return state
+}
+//  组件内
+state = store.getState()// 接收到state的初始值
+// dispath action改变state值
+increment = () => {
+  const selectVal = parseInt(this.selectNumber.value);
+  const action ={
+    type:'INCREMENTVALUE',
+    value: selectVal
+  }
+  store.dispatch(action)
+}
+// 组件挂载完成之后订阅state变化重新render
+componentDidMount(){
+  store.subscribe(() => {
+    this.setState({})
+  })
+}
 ```

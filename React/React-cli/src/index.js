@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import App from './App.jsx';
+import './store';
 
 ReactDOM.render(
   // 严格模式，检查组件代码
