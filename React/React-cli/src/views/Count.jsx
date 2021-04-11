@@ -1,27 +1,28 @@
 import React, { Component } from 'react';
-import store from '../store';
-import { decrementvalue, incrementvalue } from '../store/actions';
-
 export default class Count extends Component {
-  state = store.getState()
   componentDidMount(){
-    store.subscribe(this.storeChangeState)
+    console.log(this.props)
   }
   increment = () => {
     const selectVal = parseInt(this.selectNumber.value);
-    store.dispatch(incrementvalue(selectVal))
+    this.props.increment(selectVal)
   }
   decrement = () => {
     const selectVal = parseInt(this.selectNumber.value);
-    store.dispatch(decrementvalue(selectVal))
+    this.props.decrement(selectVal)
   }
+  incrementAsync = () => {
+    const selectVal = parseInt(this.selectNumber.value);
+    this.props.incrementAsync(selectVal,1000)
+  }
+
   storeChangeState = () => {
     this.setState({})
   }
   render() {
     return (  
       <div>
-        <h1>当前求和值：{store.getState().count}</h1>
+        <h1>当前求和值：{this.props.count}</h1>
         <select ref={c => this.selectNumber = c}>
           <option value="1">1</option>
           <option value="2">2</option>
@@ -29,6 +30,7 @@ export default class Count extends Component {
         </select>
         <button onClick={this.increment}>+</button>
         <button onClick={this.decrement}>-</button>
+        <button onClick={this.incrementAsync}>-</button>
       </div>
     )
   }

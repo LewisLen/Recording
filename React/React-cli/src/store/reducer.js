@@ -5,7 +5,6 @@ const initState = {
 };
 
 export default (state = initState,action) => {
-  console.log(action)
   const {type,value} = action;
   if(type === INCREMENTVALUE){
     let newState = JSON.parse(JSON.stringify(state)) //深度拷贝state

@@ -373,3 +373,15 @@ export const createAsyncAction = (data,time) => {
 // 组件内
 store.dispatch(createAsyncAction(val));
 ```
+
+## react-redux
+
+遵循的原则：
+
+1. 所有的UI组件都应该被一个容器组件包裹，父子组件关系
+2. 容器组件是真正和redux打交道的，里边可以随意使用redux的api，通过props将store传递给容器组件
+3. UI组件中不能使用任何的redux的api
+4. 容器组件会传给UI组件：a. redux中所保存的状态 b. 用于操作状态的方法
+5. 容器传给UI状态和方法，都是通过props传递的
+
+
