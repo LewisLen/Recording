@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import store from '../store';
+import { decrementvalue, incrementvalue } from '../store/actions';
 
 export default class Count extends Component {
   state = store.getState()
@@ -8,19 +9,11 @@ export default class Count extends Component {
   }
   increment = () => {
     const selectVal = parseInt(this.selectNumber.value);
-    const action ={
-      type:'INCREMENTVALUE',
-      value: selectVal
-    }
-    store.dispatch(action)
+    store.dispatch(incrementvalue(selectVal))
   }
   decrement = () => {
     const selectVal = parseInt(this.selectNumber.value);
-    const action ={
-      type:'DECREMENTVALUE',
-      value: selectVal
-    }
-    store.dispatch(action)
+    store.dispatch(decrementvalue(selectVal))
   }
   storeChangeState = () => {
     this.setState({})
