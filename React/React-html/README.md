@@ -227,8 +227,8 @@ class TodoList extends React.Component{
   // 调用后可以返回一个容器，存储ref所标示的节点
   tempRef = React.createRef();
   showInfo = () => {
-    const {li} = this;
-    console.log(li)
+    const {li2} = this;
+    console.log(li2)
   }
   showDomInfo = (ref) => {
     console.log(ref)
