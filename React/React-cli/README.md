@@ -281,42 +281,43 @@ export default withRouter(Header)
 npm install redux react-redux --save
 ```
 
-创建store后，用reducer函数来管理store，组件通过action来改变state，最终通过订阅state变化来重新渲染组件。reducer被第一次调用时，是store自动触发的，传递的previousState是undefined，action是@@REDUX/INIT
+redux 是独立于react的一个用于管理状态的库，react-redux 是react公司根据redux出的状态管理库。创建store后，用reducer函数来管理store，组件通过action来发起改变state，最终通过订阅state变化来重新渲染组件。reducer被第一次调用时，是store自动触发的，传递的previousState是undefined，action是@@REDUX/INIT
 
 ```javascript
 // store.js
 import { createStore } from 'redux';
 import reducer from './reducer';
 // 1. 创建store 2. 建立reducer(函数)来管理store
-const store = createStore(reducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()) // 创建数据存储仓库，可以用redux插件查看state变化
-// const store = createStore(reducer);
+const store = createStore(reducer);
 export default store;
 
 // reducer.js
-// 初始化state
 const initState = {
+  // 初始化state
   count: 0
 };
+
+// reducer函数有两个参数，一个是previousState，一个是action{type,value}
 export default (state = initState,action) => {
-  // reducer函数有两个参数，一个是previousState，一个是action{type,value}
   const {type,value} = action;
-  // 判断action的type来执行不同的指令
+  // 通过判断action的type来执行不同的指令
   if(type === 'INCREMENTVALUE'){
-    let newState = JSON.parse(JSON.stringify(state)) //深度拷贝state
-    // 改变state
+    let newState = JSON.parse(JSON.stringify(state))
+    // 改变并返回state
     newState.count = state.count + value
-    // 返回最新的state
     return newState
   }else if(type === 'DECREMENTVALUE'){
-    let newState = JSON.parse(JSON.stringify(state)) //深度拷贝state
+    let newState = JSON.parse(JSON.stringify(state))
     newState.count = state.count - value
     return newState
   }
   return state
 }
-//  组件内
-state = store.getState()// 接收到state的初始值
-// dispath action改变state值
+
+// 组件内
+// 接收到state的初始值
+state = store.getState()
+// dispath 发起action
 increment = () => {
   const selectVal = parseInt(this.selectNumber.value);
   const action ={
@@ -331,17 +332,17 @@ componentDidMount(){
     this.setState({})
   })
 }
-// 订阅state也可以放到最外层app组件
-// index.js入口文件
+// 订阅state也可以放到最外层app组件，这样就能订阅所有的state变化，只要有state变化了，则更新对应的组件
+// 入口文件index.js
 import store from './store'
 store.subscribe(() => {
-
+  // ...
 })
 ```
 
-## 异步action
+## Redux-thunk(异步action)
 
-redux中的action一般只接收object对象(type,value)，在需要异步改变state值时，需要使用异步action（需借助redux-thunk)
+redux中的action一般只接收object对象(type,value)，在需要异步改变state值时，需要使用异步action，这时就需要使用redux-thunk中间件了，它是对Redux中dispatch的加强。
 
 ```shell
 # 安装redux-thunk
@@ -359,12 +360,12 @@ const store = createStore(reducer,applyMiddleware(thunk));
 export default store;
 
 // action.js
-// 异步action，action的值为函数，异步action中一般都会再调用同步action
+// 异步action，通常action的值为函数，异步action中一般都会再调用同步action
 export const createAsyncAction = (data,time) => {
   // 这里已经时在store中，所以是有dispatch方法
   return (dispatch) => {
     setTimeout(() => {
-      // store.dispatch(incrementvalue(data))
+      // 也可以引入store并使用store.dispatch(incrementvalue(data))
       dispatch(incrementvalue(data))
     },time)
   }
@@ -384,20 +385,32 @@ store.dispatch(createAsyncAction(val));
 4. 容器组件会传给UI组件：a. redux中所保存的状态 b. 用于操作状态的方法
 5. 容器传给UI状态和方法，都是通过props传递的
 
+
 ## Redux Dev Tools
 
 使用`Redux Dev Tools`来调试redux是非常方便的
 
 ```javascript
 import { applyMiddleware, compose, createStore } from 'redux';
+// 用thunk中间件来使用异步action
 import thunk from 'redux-thunk';
 import reducer from './reducer';
 
-const store = createStore(reducer); // 直接用reducer管理store
-const store = createStore(reducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()); // 使用Redux Dev Tools 调试
+/*
+常规reducer管理store
+const store = createStore(reducer);
 
-const composeRedux = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
-window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({}):compose;// 使用了redux-thunk之后
+使用Redux Dev Tools
+const store = createStore(reducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
+*/
+
+// 可以使用reducer、异步aciton和Redux Dev Tools
+const composeRedux = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({}):compose;
+
 const store = createStore(reducer,composeRedux(applyMiddleware(thunk)));
 export default store;
 ```
+
+## Provider
+
+`<Provider>`是一个提供器，使用了 Provider 组件，组件里边的其它所有组件都可以使用store了
