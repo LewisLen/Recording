@@ -384,4 +384,20 @@ store.dispatch(createAsyncAction(val));
 4. 容器组件会传给UI组件：a. redux中所保存的状态 b. 用于操作状态的方法
 5. 容器传给UI状态和方法，都是通过props传递的
 
+## Redux Dev Tools
 
+使用`Redux Dev Tools`来调试redux是非常方便的
+
+```javascript
+import { applyMiddleware, compose, createStore } from 'redux';
+import thunk from 'redux-thunk';
+import reducer from './reducer';
+
+const store = createStore(reducer); // 直接用reducer管理store
+const store = createStore(reducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()); // 使用Redux Dev Tools 调试
+
+const composeRedux = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
+window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({}):compose;// 使用了redux-thunk之后
+const store = createStore(reducer,composeRedux(applyMiddleware(thunk)));
+export default store;
+```
