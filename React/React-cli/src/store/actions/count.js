@@ -1,5 +1,5 @@
 // 用常量命令统一管理action
-import { DECREMENTVALUE, INCREMENTVALUE } from './constant';
+import { DECREMENTVALUE, INCREMENTVALUE } from '../constant';
 
 export const incrementvalue = data => ({type:INCREMENTVALUE,value:data});
 export const decrementvalue = data => ({type:DECREMENTVALUE,value:data});

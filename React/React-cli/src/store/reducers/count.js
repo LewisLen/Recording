@@ -1,4 +1,4 @@
-import { DECREMENTVALUE, INCREMENTVALUE } from './constant';
+import { DECREMENTVALUE, INCREMENTVALUE } from '../constant';
 
 const initState = {
   count: 0

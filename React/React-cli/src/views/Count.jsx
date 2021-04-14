@@ -1,5 +1,6 @@
 import { Button } from 'antd';
 import React, { Component } from 'react';
+import Books from '../contains/Books/Books';
 
 export default class Count extends Component {
   componentDidMount(){
@@ -32,6 +33,7 @@ export default class Count extends Component {
           <Button type="primary" onClick={this.decrement}>减</Button>
           <Button type="primary" onClick={this.incrementAsync}>异步加</Button>
         </div>
+        <Books/>
       </div>
     )
   }

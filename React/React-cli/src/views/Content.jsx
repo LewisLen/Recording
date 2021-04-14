@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Route } from 'react-router-dom'
-import Count from '../store/connect'
+import Count from '../contains/Count/Count'
 import ProductDetail from './ProductDetail'
 import ProductList from './ProductList'
 import Todo from './Todo'
