@@ -340,6 +340,9 @@ store.subscribe(() => {
 })
 ```
 
+> reducer中不要修改state，可以深拷贝一份state，或者使用Object.assign()方法新建一个副本：Object.assign({},state,newState);
+> 在default的情况下返回state，建议使用swith...case语句
+
 ## Redux-thunk(异步action)
 
 redux中的action一般只接收object对象(type,value)，在需要异步改变state值时，需要使用异步action，这时就需要使用redux-thunk中间件了，它是对Redux中dispatch的加强。

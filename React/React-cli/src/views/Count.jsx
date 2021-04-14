@@ -1,6 +1,9 @@
+import { Button } from 'antd';
 import React, { Component } from 'react';
+
 export default class Count extends Component {
   componentDidMount(){
+    // store通过props来获取
     console.log(this.props)
   }
   increment = () => {
@@ -15,10 +18,6 @@ export default class Count extends Component {
     const selectVal = parseInt(this.selectNumber.value);
     this.props.incrementAsync(selectVal,1000)
   }
-
-  storeChangeState = () => {
-    this.setState({})
-  }
   render() {
     return (  
       <div>
@@ -28,9 +27,11 @@ export default class Count extends Component {
           <option value="2">2</option>
           <option value="3">3</option>
         </select>
-        <button onClick={this.increment}>+</button>
-        <button onClick={this.decrement}>-</button>
-        <button onClick={this.incrementAsync}>-</button>
+        <div>
+          <Button type="primary" onClick={this.increment}>加</Button>
+          <Button type="primary" onClick={this.decrement}>减</Button>
+          <Button type="primary" onClick={this.incrementAsync}>异步加</Button>
+        </div>
       </div>
     )
   }
