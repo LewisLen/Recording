@@ -1,3 +1,4 @@
+// 引入UI组件
 import { connect } from 'react-redux';
 // 容器组件的store通过props传递
 // 引入connext用于链接UI组件与redux
@@ -14,15 +15,23 @@ const mapStateToProps = (state) => {
   }
 }
 // 第二个参数函数的返回值会作为操作状态的方法传递给UI组件
-const mapDispatchToProps = (dispatch) => {
-  return {
-    increment: (val) => {
-      // 执行redux的action
-      dispatch(incrementvalue(val))
-    },
-    decrement: val => dispatch(decrementvalue(val)),
-    incrementAsync: (val,time) => dispatch(createAsyncAction(val,time))
-  }
+// const mapDispatchToProps = (dispatch) => {
+//   return {
+//     increment: (val) => {
+//       // 执行redux的action
+//       dispatch(incrementvalue(val))
+//     },
+//     decrement: val => dispatch(decrementvalue(val)),
+//     incrementAsync: (val,time) => dispatch(createAsyncAction(val,time))
+//   }
+// }
+
+// mapDispatchToProps简写，直接一个key/value的对象形式
+// value必须是action函数
+const mapDispatchToProps = {
+  increment: incrementvalue,
+  decrement: decrementvalue,
+  incrementAsync: createAsyncAction
 }
 
 

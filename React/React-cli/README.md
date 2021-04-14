@@ -411,8 +411,16 @@ const mapDispatchToProps = (dispatch) => {
     incrementAsync: (val,time) => dispatch(createAsyncAction(val,time))
   }
 }
+// 简写，value必须是一个函数，react-redux会自动dispatch函数action
+// const mapDispatchToProps = {
+//   increment: incrementvalue,
+//   decrement: decrementvalue,
+//   incrementAsync: createAsyncAction
+// }
 connect(mapStateToProps,mapDispatchToProps)(CountUI)
 ```
+
+> react-redux可以不用subscribe监测state变化，自身已经监测了
 
 ## Redux Dev Tools
 
