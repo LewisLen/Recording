@@ -7,9 +7,7 @@ import Home from './views/Home';
 export default class App extends Component{
   render(){
     return (
-      <div>
-        <Home/>
-      </div>
+      <Home/>
     )
   }
 }

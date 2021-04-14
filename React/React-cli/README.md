@@ -389,6 +389,31 @@ store.dispatch(createAsyncAction(val));
 5. 容器传给UI状态和方法，都是通过props传递的
 
 
+这里会使用 react-redux 中的 connect 方法将分离的UI代码和业务代码链接起来，便于开发和维护。connect函数中的第一个参数的返回值会作为状态传递给UI组件，用key/value形式。第二个参数函数的返回值会作为操作状态的方法传递给UI组件。
+
+```javascript
+import { connect } from 'react-redux';
+// 将state映射到Props中
+const mapStateToProps = (state) => {
+  const {count} = state
+  return {
+    count
+  }
+}
+// 将dispatch映射到Props中
+const mapDispatchToProps = (dispatch) => {
+  return {
+    increment: (val) => {
+      // 执行redux的action
+      dispatch(incrementvalue(val))
+    },
+    decrement: val => dispatch(decrementvalue(val)),
+    incrementAsync: (val,time) => dispatch(createAsyncAction(val,time))
+  }
+}
+connect(mapStateToProps,mapDispatchToProps)(CountUI)
+```
+
 ## Redux Dev Tools
 
 使用`Redux Dev Tools`来调试redux是非常方便的
@@ -417,3 +442,15 @@ export default store;
 ## Provider
 
 `<Provider>`是一个提供器，使用了 Provider 组件，组件里边的其它所有组件都可以使用store了
+
+```jsx
+import { Provider } from 'react-redux';
+import store from './store';
+  <Provider store={store}>
+    <React.StrictMode>  
+      <Router>
+        <App />
+      </Router>
+    </React.StrictMode>
+  </Provider>
+```

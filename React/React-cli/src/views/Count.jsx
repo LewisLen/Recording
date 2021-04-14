@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 export default class Count extends Component {
   componentDidMount(){
     // store通过props来获取
-    console.log(this.props)
+    // console.log(this.props)
   }
   increment = () => {
     const selectVal = parseInt(this.selectNumber.value);

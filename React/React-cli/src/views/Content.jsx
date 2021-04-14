@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Route } from 'react-router-dom'
-import store from '../store'
 import Count from '../store/connect'
 import ProductDetail from './ProductDetail'
 import ProductList from './ProductList'
@@ -15,7 +14,7 @@ export default class Content extends Component {
         <Route path="/productList"><ProductList/></Route>
         <Route path="/productDetail/:id" component={ProductDetail}></Route>
         <Route path="/count">
-          <Count store={store}/>
+          <Count/>
         </Route>
       </div>
     )

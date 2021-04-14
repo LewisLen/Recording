@@ -1,4 +1,3 @@
-// 引入UI组件
 import { connect } from 'react-redux';
 // 容器组件的store通过props传递
 // 引入connext用于链接UI组件与redux
