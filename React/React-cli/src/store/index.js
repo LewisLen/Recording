@@ -1,6 +1,7 @@
-import { applyMiddleware, compose, createStore } from 'redux';
+import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
 // 用thunk中间件来使用异步action
 import thunk from 'redux-thunk';
+import BookReducer from './reducers/book';
 import CountReducer from './reducers/count';
 
 // 1. 创建store
@@ -14,9 +15,10 @@ const store = createStore(reducer);
 const store = createStore(reducer,window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
 */
 
+const allReducers = combineReducers({CountReducer,BookReducer})
 
 // 可以使用reducer、异步aciton和Redux Dev Tools
 const composeRedux = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({}):compose;
 
-const store = createStore(CountReducer,composeRedux(applyMiddleware(thunk)));
+const store = createStore(allReducers,composeRedux(applyMiddleware(thunk)));
 export default store;

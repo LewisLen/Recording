@@ -9,7 +9,7 @@ import CountUI from '../../views/Count';
 // 第一个参数函数的返回值会作为状态传递给UI组件，key/value形式
 // 这里是react-redux在调用该函数的时候已经调用了store.getState()，并且将state返回
 const mapStateToProps = (state) => {
-  const {count} = state
+  const {count} = state.CountReducer
   return {
     count
   }
