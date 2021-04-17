@@ -493,3 +493,23 @@ const mapStateToProps = (state) => {
 ```
 
 则在组件之内就可以共享state数据了
+
+
+## setState()
+
+setState是更新状态的方法，有两种写法：
+
+1. 对象式写法：setState(stateChange,[callback])，改变state状态值其实是异步的，callback为可选回调函数，在状态更新完、界面也更新完（render调用后）才会被调用
+2. 函数式：setState(updater,[callback])。updater为返回stateChange对象的函数，updater可以接收到state和props。callback为可选回调函数，在状态更新完、界面也更新完（render调用后）才会被调用
+
+```javascript
+// 对象世
+this.setState({},() => {
+  console.log(this.state);
+})
+// 函数式
+this.setState((state,props) => {
+  // 可以拿到state和props
+  return {count: state.count + 1}
+})
+```
