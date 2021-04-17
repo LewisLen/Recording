@@ -8,7 +8,7 @@ export default (state = books,action) => {
   let {type,value} = action;
   switch (type){
     case ADDBOOK:
-      return [value,...books]
+      return [value,...state]
     default:
       return state
   }

@@ -462,3 +462,34 @@ import store from './store';
     </React.StrictMode>
   </Provider>
 ```
+
+## combineReducers
+
+管理多个reducer，使用redux中的combineReducers方法
+
+```javascript
+// store.js
+import { applyMiddleware, combineReducers, compose, createStore } from 'redux';
+import thunk from 'redux-thunk';
+import BookReducer from './reducers/book';
+import CountReducer from './reducers/count';
+
+const allReducers = combineReducers({
+  CountReducer,
+  BookReducer
+})
+const composeRedux = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({}):compose;
+const store = createStore(allReducers,composeRedux(applyMiddleware(thunk)));
+export default store;
+
+// count.jsx
+const mapStateToProps = (state) => {
+  const {CountReducer,BookReducer} = state.CountReducer;
+  return {
+    count: CountReducer,
+    books: BookReducer
+  }
+}
+```
+
+则在组件之内就可以共享state数据了

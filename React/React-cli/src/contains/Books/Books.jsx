@@ -11,9 +11,10 @@ class Book extends Component {
       bookName: this.bookName.value,
       bookPrice: this.bookPrice.value
     })
+    this.bookName.value = '';
+    this.bookPrice.value = '';
   }
   render() {
-    console.log(this.props)
     return (
       <div>
         Books组件

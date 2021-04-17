@@ -23,6 +23,7 @@ export default class Count extends Component {
     return (  
       <div>
         <h1>当前求和值：{this.props.count}</h1>
+        <h1>总书籍数：{this.props.books.length}</h1>
         <select ref={c => this.selectNumber = c}>
           <option value="1">1</option>
           <option value="2">2</option>
