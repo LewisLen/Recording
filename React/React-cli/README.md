@@ -513,3 +513,27 @@ this.setState((state,props) => {
   return {count: state.count + 1}
 })
 ```
+
+## lazy和Suspense
+
+懒加载方式，使用react中的lazy方式。必须给Suspense的fallback函数指定加载中的组件
+
+```javascript
+import React, { Component, lazy, Suspense } from 'react';
+// 懒加载
+const Count = lazy(() => import('../contains/Count/Count'));
+export default class Content extends Component {
+  render() {
+    return (
+      <div>
+        内容区域
+        <Suspense fallback={<h1>Loading...</h1>}>
+          <Route path="/count">
+            <Count/>
+          </Route>
+        </Suspense>
+      </div>
+    )
+  }
+}
+```
