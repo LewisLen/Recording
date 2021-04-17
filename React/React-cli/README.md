@@ -566,4 +566,20 @@ export default HooksCount;
 ```
 
 
+## React.useEffect
 
+在函数式组件中监测state的变化，可以实现类似于生命周期函数（模拟组件中的生命周期钩子函数），可以把useEffect Hook看成是componentDidMount、componentDidUpdate和componentWillUnmount的结合
+
+```javascript
+// 第一个参数为一个函数
+React.useEffect(() => {
+    setTimeout(() => {
+      addCount()
+    },1000)
+    // return一个函数，组件卸载前执行，相当于componentWillUnmount
+    return () => {
+
+    }
+},[count])
+// 第二个参数相当于监测哪个state。如果指定的是空数组[]，则回调函数只会在第一次render后执行
+```
