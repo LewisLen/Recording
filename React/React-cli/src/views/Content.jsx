@@ -8,6 +8,7 @@ import { Route } from 'react-router-dom';
 const Count = lazy(() => import('../contains/Count/Count'));
 const ProductDetail = lazy(() => import('./ProductDetail'));
 const ProductList = lazy(() => import('./ProductList'));
+const HooksCount = lazy(() => import('./HooksCount'));
 const Todo = lazy(() => import('./Todo'));
 export default class Content extends Component {
   render() {
@@ -20,6 +21,9 @@ export default class Content extends Component {
           <Route path="/productDetail/:id" component={ProductDetail}></Route>
           <Route path="/count">
             <Count/>
+          </Route>
+          <Route path="/HooksCount">
+            <HooksCount/>
           </Route>
         </Suspense>
       </div>

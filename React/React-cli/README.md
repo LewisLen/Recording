@@ -537,3 +537,33 @@ export default class Content extends Component {
   }
 }
 ```
+
+## state Hook
+
+React.useState()可以让函数式组件也拥有state状态值
+
+```javascript
+import React from 'react';
+function HooksCount(){
+  // useState参数会在第一次初始化的时候将指定值在内部做缓存处理
+  const [count,setCount] = React.useState(0);
+  const [name,setName] = React.useState('len');
+  // 返回值为[内部当前的状态值，更新状态值的函数]
+  const addCount = () => {
+    setCount(count + 1); // 第一种写法
+    setCount(count => count + 1) // 第二种写法
+    setName(name => 'LewisLen') // 第二种写法
+  }
+  return (
+    <div>
+      <h2>Count: {count}</h2>
+      <h2>name: {name}</h2>
+      <button onClick={addCount}>加</button>
+    </div>
+  )
+}
+export default HooksCount;
+```
+
+
+
