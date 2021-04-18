@@ -583,3 +583,13 @@ React.useEffect(() => {
 },[count])
 // 第二个参数相当于监测哪个state。如果指定的是空数组[]，则回调函数只会在第一次render后执行
 ```
+
+## Ref Hook
+
+类似于createRef()的用法
+
+```javascript
+const tempRef = React.useRef();
+console.log(tempRef.current.value)
+<input type="text" ref={tempRef}/>
+```
