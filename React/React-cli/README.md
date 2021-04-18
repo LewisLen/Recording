@@ -701,3 +701,21 @@ render(){
   )
 }
 ```
+
+## getDerivedStateFromError
+
+当子组件出现报错信息时，会触发getDerivedStateFromError调用，并携带错误信息
+
+```jsx
+state = {
+  hasError: ''
+}
+static getDerivedStateFromError(error){
+  return {hasError: error}
+}
+componentDidCatch(){
+  console.log('组件渲染出错')
+}
+```
+
+> 只能捕获后代组件生命周期产生的错误，不能捕获自己组件产生的错误和其它组件在合成事件、定时器中产生的错误
