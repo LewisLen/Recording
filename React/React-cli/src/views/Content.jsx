@@ -10,6 +10,7 @@ const ProductDetail = lazy(() => import('./ProductDetail'));
 const ProductList = lazy(() => import('./ProductList'));
 const HooksCount = lazy(() => import('./HooksCount'));
 const Todo = lazy(() => import('./Todo'));
+const ContextTest = lazy(() => import('./ContextTest'));
 export default class Content extends Component {
   render() {
     return (
@@ -24,6 +25,9 @@ export default class Content extends Component {
           </Route>
           <Route path="/HooksCount">
             <HooksCount/>
+          </Route>
+          <Route path="/ContextTest">
+            <ContextTest/>
           </Route>
         </Suspense>
       </div>

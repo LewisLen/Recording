@@ -593,3 +593,58 @@ const tempRef = React.useRef();
 console.log(tempRef.current.value)
 <input type="text" ref={tempRef}/>
 ```
+
+## fragment标签
+
+jsx语法在写dom结构的时候一定得在最外层包裹一层标签，当只是为了符合jsx语法却又不想渲染该标签时，可以使用fragment或者空标签。fragment拥有唯一的属性值key，但是空标签不能有属性。
+
+## context
+
+context可以用于祖组件与后代组件通信（数据传递）
+
+```jsx
+// 祖组件创建传递context对象
+const AContext = React.createContext();
+const {Provider} = AContext;
+export default class ContextTest extends Component {
+  state = {
+    name: 'Len'
+  }
+  render() {
+    return (
+      <div>
+        A组件
+        {/* 传递state */}
+        <Provider value={this.state.name}>
+          <Bcomponent/>
+        </Provider>
+      </div>
+    )
+  }
+}
+
+class Ccomponent extends Component{
+  // 声明接收context传递的值
+  static contextType = AContext;
+  render(){
+    console.log(this.context)
+    return (
+      <div>
+        C组件: {this.context}
+
+        {/*函数组件和类似组件都可以用的方法*/}
+        <Consumer>
+          {
+            value => {
+              // value值就是祖组件传递的值
+              return value
+            }
+          }
+        </Consumer>
+      </div>
+    )
+  }
+}
+
+
+```
