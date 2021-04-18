@@ -645,6 +645,26 @@ class Ccomponent extends Component{
     )
   }
 }
+```
 
+## PureComponent
 
+Component中会存在两个问题，只要执行了setState()方法，即使没有改变状态数据(如执行this.setState({}))，组件也会重新render()，效率比较低。当前组件重新render()时，会自动重新render()子组件，即使子组件没有用到父组件的任何状态数据，造成效率低。目标是当前组件state或props数据改变时只更新当前组件的render。
+
+这是因为Component中的生命周期函数shouldComponentUpdate()总是返回true的原因
+
+```javascript
+// 通过对比原state值和要变化的state值返回不同的shouldComponentUpdate的返回值
+shouldComponentUpdate(nextProps,nextState){
+  // 要变换成的props和state值nextProps、nextState
+
+  // if(nextState.count === this.state.count) return false
+  // else return true
+  return !this.state.count === nextState.count
+}
+// 或者使用PureComponent，注意不能直接改变state
+import React,{Component,PureComponent} from 'react'
+export default class Count extends PureComponent{
+  // 
+}
 ```
