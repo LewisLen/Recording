@@ -631,7 +631,6 @@ class Ccomponent extends Component{
     return (
       <div>
         C组件: {this.context}
-
         {/*函数组件和类似组件都可以用的方法*/}
         <Consumer>
           {
@@ -719,3 +718,9 @@ componentDidCatch(){
 ```
 
 > 只能捕获后代组件生命周期产生的错误，不能捕获自己组件产生的错误和其它组件在合成事件、定时器中产生的错误
+
+## 组件间的通信方式
+
+- 父子组件：直接通过props即可
+- 兄弟组件：消息订阅-发布、集中式管理
+- 祖孙组件：消息订阅-发布、集中式管理、conText（封装插件用比较多）
