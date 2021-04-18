@@ -668,3 +668,36 @@ export default class Count extends PureComponent{
   // 
 }
 ```
+
+## 插槽
+
+```jsx
+// 最外层组件
+render(){
+  return (
+    <div>
+      {/*AB组件形成父子组件*/}
+      <A render={name => <B name={name}/>}></A>
+    </div>
+  )
+}
+// 父组件
+state = {name: 'len'}
+render(){
+  return (
+    <div>
+      <h2>组件A</h2>
+      {this.props.render(this.state.name)}
+    </div>
+  )
+}
+// 子组件
+render(){
+  return (
+    <div>
+      <h2>组件B</h2>
+      {this.props.name}
+    </div>
+  )
+}
+```
