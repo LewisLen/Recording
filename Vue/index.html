@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue</title>
+</head>
+<body>
+  <div id="app">
+    <h2>{{name}} - {{message}}</h2>
+  </div>
+
+  <script>
+    console.log(app);
+    let tempNode = document.querySelector('#app');
+    let data = {
+      name: 'Len',
+      message: 'Hello'
+    }
+
+    let reg = /\{\{(.+?)\}\}/g;
+    // Vue源码中template是字符串模版 -> VNode -> 真正的DOM
+    function compiler(template,data){
+      let childNodes = template.childNodes;
+      for(let i = 0;i<childNodes.length;i++){
+        // 1元素节点 3文本节点
+        let type = childNodes[i].nodeType;
+        if(type === 3){
+          // 文本节点，判断里边是否有{{}}插值
+          let txt = childNodes[i].nodeValue;// 该属性只有文本节点才有意义
+          txt = txt.replace(reg,function(_,group){
+            // 这里的replace回调函数会在每匹配上一次正则表达式，回调函数就会调用一次
+            // 回调函数的第0个参数表示正则匹配到的内容
+            // 回调函数的第n个参数则表示正则中的第n组
+            // 回调函数的返回值会替换正则匹配到的内容
+
+            let key = group.trim();
+            let value = data[key];
+            return value;
+          });
+          childNodes[i].nodeValue = txt;
+        }else if(type === 1){
+          // 元素节点，判断是否有子元素
+          // 递归处理
+          compiler(childNodes[i],data);
+        }
+      }
+    }
+
+    // 返回节点的一个副本
+    // cloneNode(true)深度克隆，后代节点也会被克隆
+    let generateNode = tempNode.cloneNode(true);
+
+    console.log(tempNode);
+    compiler(generateNode,data);
+    console.log(generateNode);
+    
+    // 用指定的节点替换当前节点的一个子节点，并返回被替换掉的节点
+    app.parentNode.replaceChild(generateNode,app);
+  </script>
+</body>
+</html>
