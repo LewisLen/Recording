@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue</title>
+</head>
+<body>
+  <div id="app">
+    <h2>{{name}} - {{message}}</h2>
+    <p>{{name}}</p>
+    <p>{{message}}</p>
+  </div>
+
+  <script>
+    function JGVue(options){
+      // 内部数据使用下划线开头，只读数据用$开头
+      this._data = options.data;
+      this._el = options.el;
+
+      // 将挂载DOM保存
+      this.$el = this._templateDOM = document.querySelector(this._el);
+      // 获取父节点
+      this._parent = this._templateDOM.parentNode;
+      // 渲染
+      this.render();
+    }
+
+    JGVue.prototype.render = function(){
+      this.compiler();
+    }
+
+    JGVue.prototype.compiler = function(){
+      // 复制一份挂载节点
+      let realHTMLDOM = this._templateDOM.cloneNode(true);
+      // 将挂载节点子元素{{}}中的值赋值为data值
+      compiler(realHTMLDOM,this._data);
+      this.update(realHTMLDOM);
+    }
+
+    JGVue.prototype.update = function(realDOM){
+      // 替换元素
+      this._parent.replaceChild(realDOM,document.querySelector("#app"))
+    }
+
+    
+    let reg = /\{\{(.+?)\}\}/g;
+    // Vue源码中template是字符串模版 -> VNode -> 真正的DOM
+    function compiler(template,data){
+      let childNodes = template.childNodes;
+      for(let i = 0;i<childNodes.length;i++){
+        // 1元素节点 3文本节点
+        let type = childNodes[i].nodeType;
+        if(type === 3){
+          // 文本节点，判断里边是否有{{}}插值
+          let txt = childNodes[i].nodeValue;// 该属性只有文本节点才有意义
+          txt = txt.replace(reg,function(_,group){
+            // 这里的replace回调函数会在每匹配上一次正则表达式，回调函数就会调用一次
+            // 回调函数的第0个参数表示正则匹配到的内容
+            // 回调函数的第n个参数则表示正则中的第n组
+            // 回调函数的返回值会替换正则匹配到的内容
+
+            let key = group.trim();
+            let value = data[key];
+            return value;
+          });
+          childNodes[i].nodeValue = txt;
+        }else if(type === 1){
+          // 元素节点，判断是否有子元素
+          // 递归处理
+          compiler(childNodes[i],data);
+        }
+      }
+    }
+
+    let app = new JGVue({
+      el: '#app',
+      data:{
+        name: 'Len',
+        message: 'Hello'
+      }
+    })
+  </script>
+</body>
+</html>
