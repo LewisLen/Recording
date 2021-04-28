@@ -5,9 +5,27 @@
 当有父子组件时，其生命周期渲染顺序为：
 
 加载渲染过程：父组件 beforeCreate -> 父组件 created -> 父组件 beforeMount -> 子组件 beforeCreate -> 子组件 created -> 子组件 beforeMount -> 子组件 mounted -> 父组件 mounted
-会先渲染父组件到beforeMount，然后将子组件渲染完，最后是渲染完父组件（mounted）
+父组件先创建，然后子组件创建；子组件先挂载，然后父组件挂载，即会先渲染父组件到beforeMount，然后将子组件渲染完，最后是渲染完父组件（mounted）
+
+父组件更新data：
+
+- 如果是父子组件有通信，改变data会影响子组件的props值。更新过程(父组件影响子组件的情况)：父组件beforeUpdate -> 子组件beforeUpdate-> 子组件updated -> 父组件updted
+- 如果只是父组件单纯更新自身的data值(父组件不影响子组件的情况)：父组件beforeUpdate -> 父组件updated
+
+子组件更新data：
+
+- 如果是父子组件有通信，改变子组件的data会影响父组件的data值。更新过程(子组件更新影响到父组件的情况)：父组件beforeUpdate -> 子组件beforeUpdate-> 子组件updated -> 父组件updted
+- 如果只是子组件单纯更新自身的data值(子组件不影响父组件的情况)：子组件beforeUpdate -> 子组件updated
 
 
+
+> 如果是在父组件mounted同步改变data值传递子组件，在子组件mounted是拿不到的。只有在父组件中的created同步改变传递data的值，在子组件中created和mounted中是可以拿到的。
+> 如果是在父组件中异步获取数据传递子组件，可以借助在父组件调用组件时加上v-if数据判断来渲染子组件。或者在子组件中watch数据再做操作
+> updated能够在数据变化时触发，但不能准确的判断时哪个属性值改变，使用computed和watch监听属性变化
+
+## 钩子函数
+
+不要将钩子（methods中）函数写成箭头函数，因为没有 this，生命周期钩子的`this`上下文指向调用它的Vue实例，用箭头函数会造成报错。
 
 
 

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue生命周期相关</title>
+    <script type="text/javascript" src="../lib/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+    	<com-a></com-a>
+    </div>
+    <script type="text/javascript">
+			// 子组件
+			var ComponentB = {
+					name: 'ComponentB',
+					template: `
+					<div>
+						<p>子组件{{num}}</p>
+						<p>子组件{{message}}</p>
+						<p>子组件{{childYearNum}}</p>
+						<button @click="changeMsg">子组件改变父组件的值</button>
+					</div>
+					`,
+					props:{
+						num:{
+							type: Number,
+							default: ''
+						},
+						yearNum:{
+							type: Number,
+							default: ''
+						},
+						message:{
+							type: String,
+							default: ''
+						}
+					},
+					data(){
+						return{
+							childYearNum: this.yearNum
+						}
+					},
+					watch:{
+						yearNum(val,oldVal){
+							console.log('val===',val);
+							console.log('oldVal===',oldVal);
+							this.childYearNum = val
+						}
+					},
+					beforeCreate(){
+						console.log('子组件beforeCreate')
+					},
+					created(){
+						console.log('子组件created')
+						console.log('子组件created =====',this.yearNum) // 0
+					},
+					beforeMount(){
+						console.log('子组件beforeMount')
+					},
+					mounted(){
+						console.log('子组件mounted')
+						console.log('子组件mounted =====',this.yearNum) // 0
+					},
+					beforeUpdate(){
+						console.log('子组件beforeUpdate')
+					},
+					updated(){
+						console.log('子组件updated')
+					},
+					beforeDestroy(){
+						console.log('子组件beforeDestroy')
+					},
+					destroyed(){
+						console.log('子组件destroyed')
+					},
+					methods:{
+						changeMsg(){
+							this.$emit('changeMsg','World')
+						}
+					}
+			}
+
+			var ComponentA = {
+					template: 
+					`<div>
+						<p>父组件{{num}}</p>
+						<p>父组件{{message}}</p>
+						<button @click="changeNum">父组件改变子组件num</button>
+						<br/>
+						==================================
+						<com-b :num="num" :message="message" :yearNum="yearNum" @changeMsg="changeMsg"></com-b>
+					</div>`,
+					components:{
+						comB: ComponentB
+					},
+					data(){
+						return{
+							num: 1,
+							yearNum: 0,
+							message: 'Hello'
+						}
+					},
+					beforeCreate(){
+						console.log('父组件beforeCreate')
+					},
+					created(){
+						console.log('父组件created');
+					},
+					beforeMount(){
+						console.log('父组件beforeMount')
+					},
+					mounted(){
+						console.log('父组件mounted');
+						setTimeout(() => {
+							this.yearNum = 2021;
+						},500)
+					},
+					beforeUpdate(){
+						console.log('父组件beforeUpdate')
+					},
+					updated(){
+						console.log('父组件updated')
+					},
+					beforeDestroy(){
+						console.log('父组件beforeDestroy')
+					},
+					destroyed(){
+						console.log('父组件destroyed')
+					},
+					methods:{
+						// 通过改变父组件的data，从而改变了传递给子组件的值
+						changeNum(){
+							this.num ++;
+						},
+						changeMsg(msg){
+							this.message = msg;
+						}
+					}
+			}
+
+    	var vm = new Vue({
+    		el: '#app',
+    		components:{
+    			comA: ComponentA
+    		}
+    	});
+    </script>
+</body>
+</html>
