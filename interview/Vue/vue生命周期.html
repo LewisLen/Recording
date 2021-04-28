@@ -53,14 +53,16 @@
 					},
 					created(){
 						console.log('子组件created')
-						console.log('子组件created =====',this.yearNum) // 0
+						// 父组件异步获取data传到子组件，通过在父组件渲染子组件时增加if判断即可拿到值
+						// console.log('子组件created =====',this.yearNum) // 0
 					},
 					beforeMount(){
 						console.log('子组件beforeMount')
 					},
 					mounted(){
 						console.log('子组件mounted')
-						console.log('子组件mounted =====',this.yearNum) // 0
+						// 父组件异步获取data传到子组件，通过在父组件渲染子组件时增加if判断即可拿到值
+						// console.log('子组件mounted =====',this.yearNum) // 0
 					},
 					beforeUpdate(){
 						console.log('子组件beforeUpdate')
@@ -87,9 +89,10 @@
 						<p>父组件{{num}}</p>
 						<p>父组件{{message}}</p>
 						<button @click="changeNum">父组件改变子组件num</button>
+						<button @click="destoryChild">父组件销毁子组件</button>
 						<br/>
 						==================================
-						<com-b :num="num" :message="message" :yearNum="yearNum" @changeMsg="changeMsg"></com-b>
+						<com-b :num="num" :message="message" :yearNum="yearNum" @changeMsg="changeMsg" v-if="yearNum"></com-b>
 					</div>`,
 					components:{
 						comB: ComponentB
@@ -106,15 +109,15 @@
 					},
 					created(){
 						console.log('父组件created');
+						setTimeout(() => {
+							this.yearNum = 2021;
+						})
 					},
 					beforeMount(){
 						console.log('父组件beforeMount')
 					},
 					mounted(){
 						console.log('父组件mounted');
-						setTimeout(() => {
-							this.yearNum = 2021;
-						},500)
 					},
 					beforeUpdate(){
 						console.log('父组件beforeUpdate')
@@ -135,6 +138,9 @@
 						},
 						changeMsg(msg){
 							this.message = msg;
+						},
+						destoryChild(){
+							this.$destroy('comB')
 						}
 					}
 			}
