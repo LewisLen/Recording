@@ -1,8 +1,8 @@
-// 引入UI组件
+// 引入connext用于链接UI组件与redux
 import { connect } from 'react-redux';
 import { createAsyncAction, decrementvalue, incrementvalue } from '../../store/actions/count';
 // 容器组件的store通过props传递
-// 引入connext用于链接UI组件与redux
+// 引入UI组件
 import CountUI from '../../views/Count';
 
 // connect第一次需传递两个参数，且参数必须是函数

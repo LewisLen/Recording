@@ -394,7 +394,8 @@ store.dispatch(createAsyncAction(val));
 ```javascript
 import { connect } from 'react-redux';
 // 将state映射到Props中
-const mapStateToProps = (state) => {
+const mapStateToProps = (state,ownProps) => {
+  // ownProps是除了store外父组件传递给子组件的props
   const {count} = state
   return {
     count
@@ -421,6 +422,7 @@ connect(mapStateToProps,mapDispatchToProps)(CountUI)
 ```
 
 > react-redux可以不用subscribe监测state变化，自身已经监测了
+> 需要注意的是，如果只connect了CountUI，那么只有CountUI组件能够拿到state，其子组件要么再connect，要么通过父组件传递state，不然拿不到state值
 
 ## Redux Dev Tools
 
