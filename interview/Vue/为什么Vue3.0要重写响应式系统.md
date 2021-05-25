@@ -5,6 +5,8 @@
 - Vue2.x: 核心是 Object.definePropety
 - Vue3.0: 核心是 Proxy
 
+相对于react和微信小程序对于属性的**侵入式**更改，Vue属于**非侵入式**
+
 ## 探索Vue2.x响应式原理
 
 相信很多用过 Vue 的小伙伴都了解过其响应式原理的核心式`Object.defineProperty`吧，但是大部分也只是知道用了这个知识点，并不了解响应式原理的真正过程。
@@ -48,10 +50,52 @@ Object.defineProperty(book,'price',{
 也就是说 Object.defineProperty 方法可以新增和修改对象的属性，相对于直接对属性的赋值，该方法还有其它的设置。响应式涉及到主要还是`get`和`set`属性，属性对应有`getter`和`setter`方法
 
 ```javascript
+let person = {}
+Object.defineProperty(person,'name',{
+  // getter函数
+  get(){
+    // 当读取name属性时调用
+    console.log('getter====')
+    return 'Len'// return默认是undefined
+  },
+  // setter函数
+  set(newValue){
+    // 当设置name属性时调用
+    console.log('setter====',newValue)// “LewisLen”
+    return "Lewis"// return默认是undefined
+  }
+})
+person.name = "LewisLen"
+console.log(person.name)// Len
+```
 
+### defineReactive（响应式函数）
 
+从上面的代码中看出，直接更改obj的属性值，根本没有生效，但是能捕获到newValue，这是属性值都是从get的返回值中获取。
 
-
+```javascript
+let person = {}
+// 相当于在最外层加个中间的变量val，和getter/setter形成一个闭包
+function defineReactive(target,key,val){
+  Object.defineProperty(target,key,{
+    enumerable: true,
+    configurable: true,
+    get(){
+      // 当读取name属性时调用
+      console.log('getter====')
+      return temp
+    },
+    set(newValue){
+      // 当设置name属性时调用
+      console.log('setter====',newValue)
+      if(val === newValue) return;
+      temp = newValue
+    }
+  })
+}
+defineReactive(person,'name',"Len");
+person.name = "LewisLen"
+console.log(person)// "LewisLen"
 ```
 
 
@@ -59,6 +103,8 @@ Object.defineProperty(book,'price',{
 
 
 Vue通过Object.defineProperty的 getter/setter 对收集的依赖项进行监听,在属性被访问和修改时通知变化,进而更新视图数据。Vue数据响应式变化主要涉及 Observer, Watcher , Dep 这三个主要的类；因此要弄清Vue响应式变化需要明白这个三个类之间是如何运作联系的；以及它们的原理，负责的逻辑操作。
+
+
 
 
 

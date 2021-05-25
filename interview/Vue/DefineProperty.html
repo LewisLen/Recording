@@ -8,7 +8,29 @@
     <div id="app">
     </div>
     <script type="text/javascript">
-			
+		let person = {}
+		function defineReactive(target,key,val){
+			Object.defineProperty(target,key,{
+				enumerable: true,
+				configurable: true,
+				get(){
+					// 当读取name属性时调用
+					console.log('getter====')
+					return temp
+				},
+				set(newValue){
+					// 当设置name属性时调用
+					console.log('setter====',newValue)
+					if(val === newValue) return;
+					temp = newValue
+				}
+			})
+		}
+		defineReactive(person,'name',"Len");
+		person.name = "LewisLen"
+		console.log(person)// "LewisLen"
+
+		/*
 			let data = {
 				msg: 'Hello',
 				name: 'Len'
@@ -34,6 +56,7 @@
 				})
 			})
 			console.log(vm.msg)
+			*/
 
 			/*
 			let _data = {
