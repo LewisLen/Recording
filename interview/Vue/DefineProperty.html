@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vue2.X响应式原理</title>
-</head>
 <body>
     <div id="app">
     </div>
-		<div id="root">
-		</div>
     <script type="text/javascript">
+			
 			let data = {
 				msg: 'Hello',
 				name: 'Len'
@@ -18,6 +16,7 @@
 			
 			// 模拟vue的实例
 			let vm = {}
+			// Object.keys循环对象属性
 			Object.keys(data).forEach(key => {
 				// 数据劫持：当访问或者设置vm中的数据时做的一些操作
 				Object.defineProperty(vm,key,{
@@ -34,7 +33,9 @@
 					}
 				})
 			})
+			console.log(vm.msg)
 
+			/*
 			let _data = {
 				msg: 'Hello',
 				name: 'Len'
@@ -54,6 +55,7 @@
 					document.querySelector('#root').textContent = target[key];
 				}
 			})
+			*/
     </script>
 </body>
 </html>
