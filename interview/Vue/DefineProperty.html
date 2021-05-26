@@ -8,8 +8,25 @@
     <div id="app">
     </div>
     <script type="text/javascript">
-		let person = {}
+		let person = {
+			a:{
+				b:{
+					c:{
+						name: 'len'
+					}
+				}
+			},
+			d:{
+				age: '00'
+			}
+		}
+		// 相当于在最外层加个中间的变量val，和getter/setter形成一个闭包
 		function defineReactive(target,key,val){
+			console.log('defineReactive',defineReactive);
+			if(arguments.length === 2){
+				// 如果没有传初始值，则读取赋值所传的key/value值
+				val = target[key]
+			}
 			Object.defineProperty(target,key,{
 				enumerable: true,
 				configurable: true,
@@ -26,10 +43,50 @@
 				}
 			})
 		}
-		defineReactive(person,'name',"Len");
-		person.name = "LewisLen"
-		console.log(person)// "LewisLen"
 
+		const def = (obj,key,value,enumerable) => {
+			console.log('def====obj',obj)
+			console.log('def====key',key)
+			console.log('def====value',value)
+			Object.defineProperty(obj,key,{
+				value,
+				enumerable,
+				writable: true,
+				configurable: true
+			})
+		}
+
+		// 实现对象（各个层级）属性被侦测（即被观察）
+		class Observer{
+			constructor(obj){
+				console.log('Observer观察者类obj',obj)
+				// 给实例加上defineProperty，可枚举
+				def(obj,obj.__ob__,this,false)
+			}
+			// 遍历每个对象的层级属性
+			walk(obj){
+				for(let k in obj){
+					defineReactive(obj,key)
+				}
+			}
+	}
+
+		// 
+		function observe(obj){
+			console.log('observe====',obj)
+			if(typeof obj !== 'object') return;
+			// ob存储Observer的实例
+			// __ob_是Observer的属性
+			var ob;
+			if(typeof obj.__ob__ !== 'undefined'){
+				ob = obj.__ob__;
+			}else{
+				ob = new Observer(obj);
+			}
+			return ob;
+		}
+
+		observe(person)
 		/*
 			let data = {
 				msg: 'Hello',

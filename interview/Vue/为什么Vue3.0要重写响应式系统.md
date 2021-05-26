@@ -77,6 +77,10 @@ console.log(person.name)// Len
 let person = {}
 // 相当于在最外层加个中间的变量val，和getter/setter形成一个闭包
 function defineReactive(target,key,val){
+  if(arguments.length === 2){
+    // 如果没有传初始值，则读取赋值所传的key/value值
+    val = target[key]
+  }
   Object.defineProperty(target,key,{
     enumerable: true,
     configurable: true,
@@ -98,6 +102,13 @@ person.name = "LewisLen"
 console.log(person)// "LewisLen"
 ```
 
+### Observer
+
+Observer主要作用是将每个(层级)属性能够被劫持到，实现响应式。
+
+observe(obj) => 看obj上是否有__ob__属性 => 没有则需要new Observer()观察者实例 => 遍历下一层属性，逐个defineReactive实现响应式。
+
+当设置某个属性值的时候，会触发setter函数，里边的newValue也得被observe()
 
 
 
