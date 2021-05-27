@@ -18,7 +18,8 @@
 			d:{
 				age: '00'
 			},
-			name: "Len"
+			name: "Len",
+			arr: [1,2,3,4]
 		}
 
 		// 相当于在最外层加个中间的变量val，和getter/setter形成一个闭包
@@ -71,7 +72,12 @@
 				// 这里的this是Observer的实例
 				console.log('Oberver观察者类的实例this====',this)
 				def(obj,'__ob__',this)
-				this.walk(obj)
+				if(Array.isArray(obj)){
+					console.log('数组====')
+					Object.setPrototypeOf(obj,arrayMethodsChange);
+				}else{
+					this.walk(obj)
+				}
 			}
 			// 遍历每个对象的层级
 			walk (obj) {
@@ -101,6 +107,23 @@
 			}
 			console.log('最终返回的ob',ob,'是Observer的实例')
 			return ob;
+		}
+
+
+		function arrayMethodsChange(){
+			const arrMethods = ['push','pop','unshift','splice','splice','sort','reserve'];
+			// 获取数组原型上的方法
+			const oldArrayProtope = Array.prototype;
+			// 以oldArrayProtope为原型,创建一个含有数组方法的对象
+			const newArrayPrototypeObj = Object.create(oldArrayProtope);
+			arrMethods.forEach(methodName => {
+				def(newArrayPrototypeObj,methodName,function(){
+					console.log('hhhhh')
+					oldArrayProtope[methodName].call(this,...arguments);
+				},false)
+			})
+			console.log('newArrayPrototypeObj===',newArrayPrototypeObj)
+			return newArrayPrototypeObj;
 		}
 
 		observe(person);
@@ -148,7 +171,7 @@
 			// 	新增对数组的响应式
 			const oldArrayProto = Array.prototype;
 			const newArrayProto = Object.create(oldArrayProto);
-			const arrMethods = ['push','pop','unshift','splice','splice'];
+			const arrMethods = ['push','pop','unshift','splice','splice','sort','reserve'];
 			arrMethods.forEach((methodName,args) => {
 				console.log(args);
 				oldArrayProto[methodName].call(this,...args);
