@@ -8,85 +8,152 @@
     <div id="app">
     </div>
     <script type="text/javascript">
+
 		let person = {
-			a:{
-				b:{
-					c:{
-						name: 'len'
-					}
-				}
-			},
-			d:{
-				age: '00'
-			}
+			// a:{
+			// 	b:{
+			// 		name: 'len'
+			// 	}
+			// },
+			// d:{
+			// 	age: '00'
+			// },
+			name: "Len"
 		}
+
 		// 相当于在最外层加个中间的变量val，和getter/setter形成一个闭包
 		function defineReactive(target,key,val){
-			console.log('defineReactive',defineReactive);
+			console.log('defineReactive函数');
 			if(arguments.length === 2){
 				// 如果没有传初始值，则读取赋值所传的key/value值
 				val = target[key]
 			}
 			Object.defineProperty(target,key,{
-				enumerable: true,
+				enumerable: true,// 可枚举
 				configurable: true,
 				get(){
 					// 当读取name属性时调用
-					console.log('getter====')
-					return temp
+					console.log('defineReactive的getter函数被调用，值为==== ',val)
+					return val
 				},
 				set(newValue){
 					// 当设置name属性时调用
-					console.log('setter====',newValue)
-					if(val === newValue) return;
-					temp = newValue
+					console.log('defineReactive的setter函数被调用旧值为==== ',val);
+					console.log('defineReactive的setter函数被调用新值为==== ',newValue);
+					if(newValue === val) return;
+					val = newValue
+					console.log("更新视图")
 				}
 			})
 		}
 
+		// 将传入的对象走一层Object.deineProperty方法来定义
 		const def = (obj,key,value,enumerable) => {
 			console.log('def====obj',obj)
 			console.log('def====key',key)
 			console.log('def====value',value)
 			Object.defineProperty(obj,key,{
 				value,
-				enumerable,
+				enumerable: !!enumerable,
 				writable: true,
 				configurable: true
 			})
 		}
 
-		// 实现对象（各个层级）属性被侦测（即被观察）
+		// 实现各个层级对象的属性能够被侦测（即被观察observe）的类
 		class Observer{
 			constructor(obj){
-				console.log('Observer观察者类obj',obj)
-				// 给实例加上defineProperty，可枚举
-				def(obj,obj.__ob__,this,false)
+				console.log('Observer观察者类，obj值===',obj)
+				// 给类的实例用defineProperty定义
+				// 这里的this是Observer的实例
+				console.log('Oberver观察者类的实例this====',this)
+				def(obj,'__ob__',this)
+				this.walk(obj)
 			}
-			// 遍历每个对象的层级属性
-			walk(obj){
-				for(let k in obj){
-					defineReactive(obj,key)
+			// 遍历每个对象的层级
+			walk (obj) {
+				const keys = Object.keys(obj)
+				for (let i = 0; i < keys.length; i++) {
+					console.log('walk===',keys[i])
+					defineReactive(obj, keys[i] )
 				}
 			}
 	}
 
-		// 
+		// 判断传入的对象是否为嵌套对象，实现各个层级的属性都能够被defineProperty定义
 		function observe(obj){
-			console.log('observe====',obj)
-			if(typeof obj !== 'object') return;
-			// ob存储Observer的实例
-			// __ob_是Observer的属性
+			console.log('observe函数，传入的obj一定得是对象===',obj)
+			if(typeof obj !== 'object' || obj === null) return;
+			// ob变量存储的是Observer的实例__ob__是Observer实例的属性
 			var ob;
+			console.log('初始的ob=====',ob,'typeof ob====',typeof ob)
 			if(typeof obj.__ob__ !== 'undefined'){
+				console.log('obj.__ob__属性存在')
 				ob = obj.__ob__;
 			}else{
+				console.log('obj.__ob__属性不存在')
 				ob = new Observer(obj);
 			}
+			console.log('最终返回的ob=====',ob)
 			return ob;
 		}
 
-		observe(person)
+		observe(person);
+
+
+
+		/*
+			const data = {
+				name: 'len',
+				age: '100',
+				arr: [1]
+			}
+
+			function observer(target){
+				if(typeof target !== 'object' || target === null){
+					return target
+				}
+				for(let key in target){
+					defineReactive(target,key,target[key]);
+				}
+			}
+
+
+			function defineReactive(target,key,value){
+				// 递归监听数据中的嵌套对象
+				observer(target);
+				Object.defineProperty(target,key,{
+					get(){
+						return value
+					},
+					set(newValue){
+						// 在设置的时候也有可能是对象，也需要深度监听对象
+						observer(value);
+						if(newValue === value) return;
+						val = newValue;
+						console.log('更新视图')
+					}
+				})
+			}
+
+			observer(data);
+			console.log(data)
+			// 删除和新增data没有的属性没法响应式
+
+			// 	新增对数组的响应式
+			const oldArrayProto = Array.prototype;
+			const newArrayProto = Object.create(oldArrayProto);
+			const arrMethods = ['push','pop','unshift','splice','splice'];
+			arrMethods.forEach((methodName,args) => {
+				console.log(args);
+				oldArrayProto[methodName].call(this,...args);
+				console.log('更新视图')
+			})
+
+		*/
+
+
+		
 		/*
 			let data = {
 				msg: 'Hello',

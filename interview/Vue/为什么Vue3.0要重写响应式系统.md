@@ -7,13 +7,18 @@
 
 相对于react和微信小程序对于属性的**侵入式**更改，Vue属于**非侵入式**
 
+> vue 是直接更改数据，如：this.num = 100
+> React 和 小程序则需要调用指定的封装方法来改变数据再改变视图
+> React: this.setState({num:10})
+> 小程序: setData({num: 10})
+
 ## 探索Vue2.x响应式原理
 
 相信很多用过 Vue 的小伙伴都了解过其响应式原理的核心式`Object.defineProperty`吧，但是大部分也只是知道用了这个知识点，并不了解响应式原理的真正过程。
 
 ### 关于Object.defineProperty方法
 
-Object.defineProperty() 方法会直接在一个对象上定义一个新属性，或者修改一个对象的现有属性，并返回此**对象**。
+Object.defineProperty() 方法会直接在一个对象上定义一个新属性，或者修改一个对象的现有属性，并返回此**对象**。其关键属性`get`和`set`能够监测和设置对象指定属性，换句话说，只要对象有了`getter`和`setter`，那么就可以认为这个对象是响应式对象。
 
 ```javascript
 var book = {
@@ -45,6 +50,18 @@ Object.defineProperty(book,'price',{
   enumerable: true,
   value: '1000'
 })
+
+var obj = {};
+// 使用Object.defineProperty方法定义新属性后，这个属性的特性中configurable，enumerable，writable都为默认的值false
+// 这就导致了被定义的属性是不能重写、不能枚举、不能再次设置特性
+Object.defineProperty(obj,'asd',{
+  // 不设置属性，则默认为false
+});
+obj.asd = 'hello';
+console.log(obj.asd); // undefined 不可赋值
+for( var k in obj ){
+    console.log(k); // undefined 不可枚举
+}
 ```
 
 也就是说 Object.defineProperty 方法可以新增和修改对象的属性，相对于直接对属性的赋值，该方法还有其它的设置。响应式涉及到主要还是`get`和`set`属性，属性对应有`getter`和`setter`方法
