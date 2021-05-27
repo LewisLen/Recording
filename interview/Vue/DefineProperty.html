@@ -8,26 +8,30 @@
     <div id="app">
     </div>
     <script type="text/javascript">
-
+		
 		let person = {
-			// a:{
-			// 	b:{
-			// 		name: 'len'
-			// 	}
-			// },
-			// d:{
-			// 	age: '00'
-			// },
+			a:{
+				b:{
+					name: 'len'
+				}
+			},
+			d:{
+				age: '00'
+			},
 			name: "Len"
 		}
 
 		// 相当于在最外层加个中间的变量val，和getter/setter形成一个闭包
 		function defineReactive(target,key,val){
 			console.log('defineReactive函数');
+			console.log('defineReactive函数val====',val)
 			if(arguments.length === 2){
 				// 如果没有传初始值，则读取赋值所传的key/value值
+				// 这里如果有多层嵌套对象，那么val就会是下一个嵌套的对象
 				val = target[key]
 			}
+			// 这里调用obseve的作用是循环递归各个层级的对象，使其都是Observer的实例，最终每个属性都会被defineReactive,拥有getter和setter函数，变成响应式
+			observe(val);
 			Object.defineProperty(target,key,{
 				enumerable: true,// 可枚举
 				configurable: true,
@@ -40,6 +44,8 @@
 					// 当设置name属性时调用
 					console.log('defineReactive的setter函数被调用旧值为==== ',val);
 					console.log('defineReactive的setter函数被调用新值为==== ',newValue);
+					// 当设置属性为对象的时候也要observe，使其都是Observer的实例，最终每个属性都会被defineReactive,拥有getter和setter函数，变成响应式
+					observe(val);
 					if(newValue === val) return;
 					val = newValue
 					console.log("更新视图")
@@ -49,9 +55,6 @@
 
 		// 将传入的对象走一层Object.deineProperty方法来定义
 		const def = (obj,key,value,enumerable) => {
-			console.log('def====obj',obj)
-			console.log('def====key',key)
-			console.log('def====value',value)
 			Object.defineProperty(obj,key,{
 				value,
 				enumerable: !!enumerable,
@@ -73,6 +76,8 @@
 			// 遍历每个对象的层级
 			walk (obj) {
 				const keys = Object.keys(obj)
+				console.log('keys=====',keys)
+				console.log('obj=====',obj)
 				for (let i = 0; i < keys.length; i++) {
 					console.log('walk===',keys[i])
 					defineReactive(obj, keys[i] )
@@ -86,7 +91,7 @@
 			if(typeof obj !== 'object' || obj === null) return;
 			// ob变量存储的是Observer的实例__ob__是Observer实例的属性
 			var ob;
-			console.log('初始的ob=====',ob,'typeof ob====',typeof ob)
+			console.log('初始的ob=====',ob,'typeof ob====',typeof ob);
 			if(typeof obj.__ob__ !== 'undefined'){
 				console.log('obj.__ob__属性存在')
 				ob = obj.__ob__;
@@ -94,7 +99,7 @@
 				console.log('obj.__ob__属性不存在')
 				ob = new Observer(obj);
 			}
-			console.log('最终返回的ob=====',ob)
+			console.log('最终返回的ob',ob,'是Observer的实例')
 			return ob;
 		}
 

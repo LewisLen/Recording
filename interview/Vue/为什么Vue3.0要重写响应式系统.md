@@ -127,7 +127,7 @@ observe(obj) => 看obj上是否有__ob__属性 => 没有则需要new Observer()�
 
 当设置某个属性值的时候，会触发setter函数，里边的newValue也得被observe()
 
-
+Observer作用：1.间接递归监听data对象 2. 链接dep对象，调用delete和set数组的变异方法时获取observer的dep通知依赖watcher更新
 
 
 Vue通过Object.defineProperty的 getter/setter 对收集的依赖项进行监听,在属性被访问和修改时通知变化,进而更新视图数据。Vue数据响应式变化主要涉及 Observer, Watcher , Dep 这三个主要的类；因此要弄清Vue响应式变化需要明白这个三个类之间是如何运作联系的；以及它们的原理，负责的逻辑操作。
