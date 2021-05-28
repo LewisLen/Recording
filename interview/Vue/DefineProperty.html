@@ -9,26 +9,34 @@
     </div>
     <script type="text/javascript">
 		
-		let person = {
-			a:{
-				b:{
-					name: 'len'
+		let data = {
+			subscribe:{
+				prdCode: 'BOOK0001',
+				types:{
+					title: '《月亮与六便士》',
+					price: '69',
+					tag: '小说',
+					sys:{
+						name: 'Kindle'
+					}
 				}
 			},
-			d:{
-				age: '00'
-			},
-			name: "Len",
-			arr: [1,2,3,4]
+			msg: '书籍是人类进步的阶梯',
+			// arr: [1,3,3,4]
 		}
 
-		// 相当于在最外层加个中间的变量val，和getter/setter形成一个闭包
+		// 判断是实例属性还是原型属性
+		function hasPrototypeProperty(obj, key) {
+			// 实例属性：false，原型属性：true
+			return !obj.hasOwnProperty(key) && (key in obj);
+		}
+
+		// 相当于声明了一个val变量来做初始值和连接get和set，使val和getter/setter函数形成一个闭包
 		function defineReactive(target,key,val){
-			console.log('defineReactive函数');
-			console.log('defineReactive函数val====',val)
 			if(arguments.length === 2){
 				// 如果没有传初始值，则读取赋值所传的key/value值
 				// 这里如果有多层嵌套对象，那么val就会是下一个嵌套的对象
+				// 这里的val = target[key]以及observe(val)对于循环对象变成响应式对象非常关键，会将一个嵌套对象defineReactive完之后再defineReactive下一个data的对象
 				val = target[key]
 			}
 			// 这里调用obseve的作用是循环递归各个层级的对象，使其都是Observer的实例，最终每个属性都会被defineReactive,拥有getter和setter函数，变成响应式
@@ -38,74 +46,76 @@
 				configurable: true,
 				get(){
 					// 当读取name属性时调用
-					console.log('defineReactive的getter函数被调用，值为==== ',val)
+					console.log('defineReactive的getter函数被调用，属性==== ',key ,'  val值====  ',val)
 					return val
 				},
 				set(newValue){
 					// 当设置name属性时调用
-					console.log('defineReactive的setter函数被调用旧值为==== ',val);
-					console.log('defineReactive的setter函数被调用新值为==== ',newValue);
+					console.log('defineReactive的setter函数被调用val的值=== ',val,'  newValue的值===  ',newValue);
 					// 当设置属性为对象的时候也要observe，使其都是Observer的实例，最终每个属性都会被defineReactive,拥有getter和setter函数，变成响应式
 					observe(val);
 					if(newValue === val) return;
 					val = newValue
-					console.log("更新视图")
+					console.log("数据被改变此处可更新视图")
 				}
 			})
 		}
 
-		// 将传入的对象走一层Object.deineProperty方法来定义
+		// 将传入的对象走一层Object.deineProperty方法来定义其属性
 		const def = (obj,key,value,enumerable) => {
+			// 这里传进来的value值是Observer的实例，属性是__ob__ 也就是通过观察对象上是否有__ob__属性来判断对象是否有setter和getter函数，是否被响应式处理
 			Object.defineProperty(obj,key,{
 				value,
-				enumerable: !!enumerable,
-				writable: true,
-				configurable: true
+				enumerable: !!enumerable,// 是否可枚举
+				writable: true, // 是否可写
+				configurable: true // 
 			})
 		}
 
-		// 实现各个层级对象的属性能够被侦测（即被观察observe）的类
+		// 实现各个层级对象的属性能够被侦测（即被观察observe）的类，有多少个对象就有多少个Observer实例
 		class Observer{
 			constructor(obj){
 				console.log('Observer观察者类，obj值===',obj)
-				// 给类的实例用defineProperty定义
-				// 这里的this是Observer的实例
-				console.log('Oberver观察者类的实例this====',this)
+				// 将类的实例用defineProperty定义属性，这里的this是Observer的实例
 				def(obj,'__ob__',this)
+				console.log('Observer====obj',obj)
 				if(Array.isArray(obj)){
-					console.log('数组====')
-					Object.setPrototypeOf(obj,arrayMethodsChange);
+					// 数组需要通过改写数组方法来使其可以新增getter和setter方法，变成响应式
+					// Object.setPrototypeOf(obj,arrayMethodsChange);
+					this.observeArray(obj);
 				}else{
 					this.walk(obj)
 				}
 			}
 			// 遍历每个对象的层级
 			walk (obj) {
+				// data属性组成的数组
 				const keys = Object.keys(obj)
-				console.log('keys=====',keys)
-				console.log('obj=====',obj)
 				for (let i = 0; i < keys.length; i++) {
-					console.log('walk===',keys[i])
-					defineReactive(obj, keys[i] )
+					// 给data属性对象添加getter和setter方法
+					defineReactive(obj, keys[i])
+				}
+			}
+			observeArray (items) {
+				for (let i = 0, l = items.length; i < l; i++) {
+					observe(items[i])
 				}
 			}
 	}
 
 		// 判断传入的对象是否为嵌套对象，实现各个层级的属性都能够被defineProperty定义
 		function observe(obj){
-			console.log('observe函数，传入的obj一定得是对象===',obj)
+			// 必须保证要观察的data是对象
 			if(typeof obj !== 'object' || obj === null) return;
-			// ob变量存储的是Observer的实例__ob__是Observer实例的属性
+			// ob变量存储的是Observer的实例，__ob__是Observer实例的属性
 			var ob;
-			console.log('初始的ob=====',ob,'typeof ob====',typeof ob);
+			// 初始的ob是undefined，通过new Observer的目的是让ob成为Observer的实例，在Observer上通过def来定义__ob__属性，即可给data上的每个对象添加__ob__属性
 			if(typeof obj.__ob__ !== 'undefined'){
-				console.log('obj.__ob__属性存在')
 				ob = obj.__ob__;
 			}else{
-				console.log('obj.__ob__属性不存在')
 				ob = new Observer(obj);
 			}
-			console.log('最终返回的ob',ob,'是Observer的实例')
+			// 最终返回的ob都是Observer实例，最终的目的是给data上的每个对象新增getter和setter方法，同时也会新增一个__ob__实例属性，即实现响应式
 			return ob;
 		}
 
@@ -118,7 +128,8 @@
 			const newArrayPrototypeObj = Object.create(oldArrayProtope);
 			arrMethods.forEach(methodName => {
 				def(newArrayPrototypeObj,methodName,function(){
-					console.log('hhhhh')
+					// 用到this，不能用箭头函数
+					console.log('改写数组方法')
 					oldArrayProtope[methodName].call(this,...arguments);
 				},false)
 			})
@@ -126,15 +137,17 @@
 			return newArrayPrototypeObj;
 		}
 
-		observe(person);
+		observe(data);
 
 
-
+		// 简写版本
 		/*
 			const data = {
-				name: 'len',
-				age: '100',
-				arr: [1]
+				data:{
+					list:{
+						type: '类型111'
+					}
+				}
 			}
 
 			function observer(target){
@@ -149,7 +162,7 @@
 
 			function defineReactive(target,key,value){
 				// 递归监听数据中的嵌套对象
-				observer(target);
+				observer(value);
 				Object.defineProperty(target,key,{
 					get(){
 						return value
@@ -180,57 +193,6 @@
 
 		*/
 
-
-		
-		/*
-			let data = {
-				msg: 'Hello',
-				name: 'Len'
-			}
-			
-			// 模拟vue的实例
-			let vm = {}
-			// Object.keys循环对象属性
-			Object.keys(data).forEach(key => {
-				// 数据劫持：当访问或者设置vm中的数据时做的一些操作
-				Object.defineProperty(vm,key,{
-					get(){
-						console.log('getter')
-						document.querySelector("#app").textContent = data[key];
-						return data[key]
-					},
-					set(newVal){
-						console.log('setter');
-						data[key] = newVal;
-						document.querySelector("#app").textContent = data[key];
-						return;
-					}
-				})
-			})
-			console.log(vm.msg)
-			*/
-
-			/*
-			let _data = {
-				msg: 'Hello',
-				name: 'Len'
-			}
-			
-			const _vm = new Proxy(_data,{
-				get(target,key){
-					console.log('gettter',' key==',key,' taget[key===]',target[key])
-					return target[key]
-				},
-				set(target,key,newValue){
-					console.log('settter',' key==',key,' taget[key===]',target[key],' newValue===',newValue)
-					if(target[key] === newValue){
-						return;
-					}
-					target[key] = newValue;
-					document.querySelector('#root').textContent = target[key];
-				}
-			})
-			*/
     </script>
 </body>
 </html>
