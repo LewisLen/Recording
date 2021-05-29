@@ -10,19 +10,17 @@
     <script type="text/javascript">
 		
 		let data = {
-			subscribe:{
-				prdCode: 'BOOK0001',
-				types:{
-					title: '《月亮与六便士》',
-					price: '69',
-					tag: '小说',
-					sys:{
-						name: 'Kindle'
-					}
-				}
-			},
-			msg: '书籍是人类进步的阶梯',
-			// arr: [1,3,3,4]
+			// book:{
+			// 	prdCode: 'BOOK0001',
+			// 	detail:{
+			// 		price: '69',
+			// 		subscribe:{
+			// 			title: 'Kindle'
+			// 		}
+			// 	}
+			// },
+			// msg: '书籍是人类进步的阶梯',
+			arr: [1,3,3,4]
 		}
 
 		// 判断是实例属性还是原型属性
@@ -72,6 +70,24 @@
 			})
 		}
 
+
+		const arrMethods = ['push','pop','unshift','splice','splice','sort','reserve'];
+			// 获取数组原型上的方法
+			const arrayProto = Array.prototype;
+			// 以arrayProto为原型,创建一个含有数组方法的对象
+			const newArrayPrototypeObj = Object.create(arrayProto);
+			console.log(newArrayPrototypeObj instanceof Array)
+			arrMethods.forEach(methodName => {
+				// 保存数组原型上的方法
+				const original = arrayProto[methodName];
+				def(newArrayPrototypeObj,methodName,function(...args){
+					// 用到this，不能用箭头函数
+					// arrMethods也有数组原型中的方法了
+					console.log('改写数组方法')
+					// original.apply(this,args);
+				},false)
+			})
+
 		// 实现各个层级对象的属性能够被侦测（即被观察observe）的类，有多少个对象就有多少个Observer实例
 		class Observer{
 			constructor(obj){
@@ -81,8 +97,8 @@
 				console.log('Observer====obj',obj)
 				if(Array.isArray(obj)){
 					// 数组需要通过改写数组方法来使其可以新增getter和setter方法，变成响应式
-					// Object.setPrototypeOf(obj,arrayMethodsChange);
-					this.observeArray(obj);
+					Object.setPrototypeOf(obj,arrayMethodsChange());
+					// this.observeArray(arrayMethodsChange());
 				}else{
 					this.walk(obj)
 				}
@@ -97,6 +113,7 @@
 				}
 			}
 			observeArray (items) {
+				console.log('items===',items)
 				for (let i = 0, l = items.length; i < l; i++) {
 					observe(items[i])
 				}
@@ -123,21 +140,23 @@
 		function arrayMethodsChange(){
 			const arrMethods = ['push','pop','unshift','splice','splice','sort','reserve'];
 			// 获取数组原型上的方法
-			const oldArrayProtope = Array.prototype;
-			// 以oldArrayProtope为原型,创建一个含有数组方法的对象
-			const newArrayPrototypeObj = Object.create(oldArrayProtope);
+			const arrayProto = Array.prototype;
+			// 以arrayProto为原型,创建一个含有数组方法的对象
+			// 即newArrayPrototypeObj是一个有上被述改写的9个数组方法
+			const newArrayPrototypeObj = Object.create(arrayProto);
 			arrMethods.forEach(methodName => {
-				def(newArrayPrototypeObj,methodName,function(){
+				// 保存数组原型上的方法
+				const original = arrayProto[methodName];
+				def(newArrayPrototypeObj,methodName,function(...args){
 					// 用到this，不能用箭头函数
-					console.log('改写数组方法')
-					oldArrayProtope[methodName].call(this,...arguments);
+					// arrMethods也有数组原型中的方法了
+					original.apply(this,args);
 				},false)
 			})
-			console.log('newArrayPrototypeObj===',newArrayPrototypeObj)
 			return newArrayPrototypeObj;
 		}
 
-		observe(data);
+		observe(data.arr);
 
 
 		// 简写版本
