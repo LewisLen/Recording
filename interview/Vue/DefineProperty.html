@@ -80,11 +80,11 @@
 			arrMethods.forEach(methodName => {
 				// 保存数组原型上的方法
 				const original = arrayProto[methodName];
-				def(newArrayPrototypeObj,methodName,function(...args){
+				def(newArrayPrototypeObj,methodName,function(...arguments){
 					// 用到this，不能用箭头函数
 					// arrMethods也有数组原型中的方法了
 					console.log('改写数组方法')
-					// original.apply(this,args);
+					// original.apply(this,arguments);
 				},false)
 			})
 
@@ -147,14 +147,16 @@
 			arrMethods.forEach(methodName => {
 				// 保存数组原型上的方法
 				const original = arrayProto[methodName];
-				def(newArrayPrototypeObj,methodName,function(...args){
+				def(newArrayPrototypeObj,methodName,function(...arguments){
 					// 用到this，不能用箭头函数
 					// arrMethods也有数组原型中的方法了
+					// arguments不是数组，是伪数组，所以是没有数组的方法
 
 					// todo 这一段还不是很懂
 					// 这里的this.__ob__就是传入的data数组中会有__ob__属性，因为该数组也是data对象的一个属性值，所以在遍历最外层对象的时候，就已经给数组添加了__ob__属性
 					const ob = this.__ob__;
 					let inserted = [];
+					let args = [...arguments]
 					// 这里判读的目的是将新插入的元素也要是响应式
 					switch(methodName){
 						case 'push':
@@ -171,7 +173,9 @@
 						ob.observeArray(inserted);
 					}
 					// todo 这一段还不是很懂
-					original.apply(this,args);
+
+					console.log('数组数据被改变')
+					original.apply(this,arguments);
 				},false)
 			})
 			return newArrayPrototypeObj;
@@ -225,9 +229,9 @@
 			const oldArrayProto = Array.prototype;
 			const newArrayProto = Object.create(oldArrayProto);
 			const arrMethods = ['push','pop','unshift','splice','splice','sort','reserve'];
-			arrMethods.forEach((methodName,args) => {
-				console.log(args);
-				oldArrayProto[methodName].call(this,...args);
+			arrMethods.forEach((methodName,arguments) => {
+				console.log(arguments);
+				oldArrayProto[methodName].call(this,...arguments);
 				console.log('更新视图')
 			})
 
