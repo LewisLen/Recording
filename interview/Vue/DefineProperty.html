@@ -98,7 +98,7 @@
 				if(Array.isArray(obj)){
 					// 数组需要通过改写数组方法来使其可以新增getter和setter方法，变成响应式
 					Object.setPrototypeOf(obj,arrayMethodsChange());
-					// this.observeArray(arrayMethodsChange());
+					this.observeArray(obj);
 				}else{
 					this.walk(obj)
 				}
@@ -112,10 +112,10 @@
 					defineReactive(obj, keys[i])
 				}
 			}
-			observeArray (items) {
-				console.log('items===',items)
-				for (let i = 0, l = items.length; i < l; i++) {
-					observe(items[i])
+			observeArray (arr) {
+				console.log('arr===',arr)
+				for (let i = 0, l = arr.length; i < l; i++) {
+					observe(arr[i])
 				}
 			}
 	}
@@ -138,7 +138,7 @@
 
 
 		function arrayMethodsChange(){
-			const arrMethods = ['push','pop','unshift','splice','splice','sort','reserve'];
+			const arrMethods = ['push','pop','unshift','shift','splice','sort','reserve'];
 			// 获取数组原型上的方法
 			const arrayProto = Array.prototype;
 			// 以arrayProto为原型,创建一个含有数组方法的对象
@@ -150,6 +150,27 @@
 				def(newArrayPrototypeObj,methodName,function(...args){
 					// 用到this，不能用箭头函数
 					// arrMethods也有数组原型中的方法了
+
+					// todo 这一段还不是很懂
+					// 这里的this.__ob__就是传入的data数组中会有__ob__属性，因为该数组也是data对象的一个属性值，所以在遍历最外层对象的时候，就已经给数组添加了__ob__属性
+					const ob = this.__ob__;
+					let inserted = [];
+					// 这里判读的目的是将新插入的元素也要是响应式
+					switch(methodName){
+						case 'push':
+						case 'unshift':
+							inserted = args;
+							break;
+						case 'splice':
+							// splice(index,number,插入项)
+							// 所以这里是从第二项开始取子数组
+							inserted = args.splice(2);
+							break;
+					}
+					if(inserted){
+						ob.observeArray(inserted);
+					}
+					// todo 这一段还不是很懂
 					original.apply(this,args);
 				},false)
 			})
