@@ -10,17 +10,32 @@
     <script type="text/javascript">
 		
 		let data = {
-			// book:{
-			// 	prdCode: 'BOOK0001',
-			// 	detail:{
-			// 		price: '69',
-			// 		subscribe:{
-			// 			title: 'Kindle'
-			// 		}
-			// 	}
-			// },
-			// msg: '书籍是人类进步的阶梯',
+			book:{
+				prdCode: 'BOOK0001',
+				detail:{
+					price: '69',
+					subscribe:{
+						title: 'Kindle'
+					}
+				}
+			},
+			msg: '书籍是人类进步的阶梯',
 			arr: [1,3,3,4]
+		}
+
+		class Dep{
+			constructor(){
+				console.log('Dep类');
+			}
+			notify(){
+				console.log('notify函数通知视图更新')
+			}
+		}
+
+		class Watcher{
+			constructor(){
+				console.log('Watcher类')
+			}
 		}
 
 		// 判断是实例属性还是原型属性
@@ -31,6 +46,8 @@
 
 		// 相当于声明了一个val变量来做初始值和连接get和set，使val和getter/setter函数形成一个闭包
 		function defineReactive(target,key,val){
+			// 在__ob__属性中新增一个Dep实例
+			let dep = new Dep();
 			if(arguments.length === 2){
 				// 如果没有传初始值，则读取赋值所传的key/value值
 				// 这里如果有多层嵌套对象，那么val就会是下一个嵌套的对象
@@ -54,7 +71,9 @@
 					observe(val);
 					if(newValue === val) return;
 					val = newValue
-					console.log("数据被改变此处可更新视图")
+					console.log("数据被改变此处可更新视图");
+					// 通知视图更新
+					dep.notify();
 				}
 			})
 		}
@@ -72,32 +91,34 @@
 
 
 		const arrMethods = ['push','pop','unshift','splice','splice','sort','reserve'];
-			// 获取数组原型上的方法
-			const arrayProto = Array.prototype;
-			// 以arrayProto为原型,创建一个含有数组方法的对象
-			const newArrayPrototypeObj = Object.create(arrayProto);
-			console.log(newArrayPrototypeObj instanceof Array)
-			arrMethods.forEach(methodName => {
-				// 保存数组原型上的方法
-				const original = arrayProto[methodName];
-				def(newArrayPrototypeObj,methodName,function(...arguments){
-					// 用到this，不能用箭头函数
-					// arrMethods也有数组原型中的方法了
-					console.log('改写数组方法')
-					// original.apply(this,arguments);
-				},false)
-			})
+		// 获取数组原型对象，原型对象上有数组方法如push\pop等
+		const arrayProto = Array.prototype;
+		// 以数组原型对象(arrayProto)为原型，创建一个原型对象上含有数组方法的对象
+		const newArrayPrototypeObj = Object.create(arrayProto);
+		console.log(newArrayPrototypeObj instanceof Array)
+		arrMethods.forEach(methodName => {
+			// 保存数组原型上的方法
+			const original = arrayProto[methodName];
+			def(newArrayPrototypeObj,methodName,function(...arguments){
+				// 用到this，不能用箭头函数
+				// arrMethods也有数组原型中的方法了
+				console.log('改写数组方法')
+				// original.apply(this,arguments);
+			},false)
+		})
 
-		// 实现各个层级对象的属性能够被侦测（即被观察observe）的类，有多少个对象就有多少个Observer实例
+		// 实现各个层级对象的属性能够被侦测（即被观察observe，添加getter和setter函数）的类，有多少个对象就有多少个Observer实例
 		class Observer{
 			constructor(obj){
-				console.log('Observer观察者类，obj值===',obj)
+				console.log('Observer观察者类，obj值===',obj);
+				// 新增一个Dep类实例，每个Observer的实例都会有个Dep实例
+				let dep = new Dep();
 				// 将类的实例用defineProperty定义属性，这里的this是Observer的实例
-				def(obj,'__ob__',this)
-				console.log('Observer====obj',obj)
+				def(obj,'__ob__',this);
+				console.log('Observer====obj',obj);
 				if(Array.isArray(obj)){
 					// 数组需要通过改写数组方法来使其可以新增getter和setter方法，变成响应式
-					Object.setPrototypeOf(obj,arrayMethodsChange());
+					Object.setPrototypeOf(obj,newArrayPrototypeObj);
 					this.observeArray(obj);
 				}else{
 					this.walk(obj)
@@ -181,7 +202,7 @@
 			return newArrayPrototypeObj;
 		}
 
-		observe(data.arr);
+		observe(data);
 
 
 		// 简写版本

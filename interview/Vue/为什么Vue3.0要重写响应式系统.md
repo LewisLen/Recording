@@ -144,7 +144,21 @@ Vue通过Object.defineProperty的 getter/setter 对收集的依赖项进行监�
 - 当Vue Component的 render 函数被执行的时候，data 会被读取，即getter方法会被调用，此时 Vue 会去记录当前 Component 所依赖的所有data（即依赖收集）
 - data 被改变时，则会被执行写的操作，即setter会被调用，此时 Vue 会通知所有依赖于此 data 的组件去调用他们的 render 函数进行更新
 
+用到数据的地方，称之为依赖
 
+> 在getter中收集依赖，在setter中触发依赖
+
+### Dep类和Watcher类
+
+- 把依赖收集到的代码封装成一个Dep类，它专门用来管理依赖，每个Observer的实例，成员中都有一个Dep实例
+- Watcher是一个中介，数据发生变化时通过Watcher中转，通知组件
+- depend()依赖，通过getter collect as dependency 收集依赖
+- notify()通知，通过setter notify（通知）Watcher
+
+
+- 依赖就是Watcher，只有Watcher触发的getter才会收集依赖，哪个Watcher触发了getter，就把哪个Watcher收集到Dep中
+- Dep使用了发布订阅模式，当数据发生变化时，会循环依赖列表，把所有的Watcher都通知一遍
+- Watcher把自己设置到全局的一个指定位置，然后读取数据，因为读取了数据，所以会触发这个数据的getter。在getter中就能得到当前正在读取数据的Watcher，并把这个Watcher收到Dep中
 
 ## Object.definePropety存在的问题
 
