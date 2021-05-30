@@ -1,8 +1,16 @@
+
+/*
+1. 获取模板
+2. 将数据渲染到模板中
+3. 将模板插入到页面
+*/ 
+
 function MyVue(options){
   // 变量命名原则：内部数据使用下划线开头，只读数据用$开头
+  // 获取渲染数据
   this._data = options.data;
   this._el = options.el;
-  // 获取要挂载的节点
+  // 获取要挂载的节点，即获取模板
   this.$el = this._templateDOM = document.querySelector(this._el);
   // 获取挂载父节点
   this._parent = this._templateDOM.parentNode;
@@ -10,12 +18,12 @@ function MyVue(options){
   this.render();
 }
 
-// render渲染函数
+// render将模版渲染到页面中
 MyVue.prototype.render = function(){
   this.compiler();
 }
 
-// 编译模版
+// 编译模版，将数据插入到模版中
 MyVue.prototype.compiler = function(){
   // 复制一份挂载节点
   let realHTMLDOM = this._templateDOM.cloneNode(true);
@@ -26,7 +34,7 @@ MyVue.prototype.compiler = function(){
 
 MyVue.prototype.update = function(realDOM){
   // 替换元素
-  this._parent.replaceChild(realDOM,document.querySelector("#app"))
+  this._parent.replaceChild(realDOM,document.querySelector('#app'))
 }
 
 // Vue源码中template是字符串模版 -> VNode -> 真正的DOM
@@ -63,4 +71,15 @@ function compiler(template,data){
       compiler(childNodes[i],data);
     }
   }
+}
+
+function getValueByObjPath(obj,path){
+  // 为了获取数据中多层对象的值 如obj.a.b
+  let paths = path.split('.');
+  let res = obj;
+  let prop;
+  while(prop = paths.shift()){
+    res = res[prop]
+  }
+  return res;
 }

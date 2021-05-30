@@ -11,6 +11,7 @@
   <div id="app">
     <h2>姓名：{{name}} 年龄：{{age}}</h2>
     <p>留言：{{message}}</p>
+    <p>工作：{{job.type}}</p>
   </div>
 
   <script>
@@ -19,7 +20,11 @@
       data:{
         name: 'Len',
         age: '99',
-        message: 'Hello,Vue'
+        message: 'Hello,Vue',
+        job:{
+          type: 'font-end development',
+          time: '100'
+        }
       }
     })
   </script>
