@@ -8,35 +8,40 @@
 </head>
 <body>
   <div id="app">
-    <h2>{{name}} - {{message}}</h2>
+    <p>
+      姓名：{{name}}
+    </p>
+    <p>
+      留言：{{message}}
+    </p>
   </div>
 
   <script>
-    console.log(app);
-    let tempNode = document.querySelector('#app');
-    let data = {
-      name: 'Len',
-      message: 'Hello'
-    }
-
-    let reg = /\{\{(.+?)\}\}/g;
     // Vue源码中template是字符串模版 -> VNode -> 真正的DOM
     function compiler(template,data){
+      // 匹配双花括号里边的内容
+      let reg = /\{\{(.+?)\}\}/g;
+      // 包括换行、元素节点，所以这里有5个子节点
+      // [换行的文本节点(内容为空)，元素节点p，换行的文本节点(内容为空),元素节点p,换行的文本节点(内容为空)]
       let childNodes = template.childNodes;
-      for(let i = 0;i<childNodes.length;i++){
-        // 1元素节点 3文本节点
+      for(let i = 0;i < childNodes.length;i++){
+        // type 1元素节点 3文本节点
         let type = childNodes[i].nodeType;
+        // 判断文本节点里是否有双花括号{{}}，然后将值插入
         if(type === 3){
-          // 文本节点，判断里边是否有{{}}插值
-          let txt = childNodes[i].nodeValue;// 该属性只有文本节点才有意义
-          txt = txt.replace(reg,function(_,group){
-            // 这里的replace回调函数会在每匹配上一次正则表达式，回调函数就会调用一次
-            // 回调函数的第0个参数表示正则匹配到的内容
+          // nodeValue 属性返回或设置当前节点的值
+          let txt = childNodes[i].nodeValue;
+          // [空值,{{name}},空值,{{message}},空值]
+          // 只要匹配到花括号里的文本，就会调用一次回调函数
+          txt = txt.replace(reg,function(matchContent,groupContent){
+            // 回调函数的第0个参数表示正则匹配到的内容            
+            console.log('回调函数第0个参数matchContent',matchContent)
             // 回调函数的第n个参数则表示正则中的第n组
-            // 回调函数的返回值会替换正则匹配到的内容
-
-            let key = group.trim();
+            // groupContent参数要看正则表达式的分组情况，一个括号为一组，所以这里就表示第1组，即会获得双花括号内的变量名
+            console.log('回调函数第1个参数groupContent',groupContent)
+            let key = groupContent.trim(); // 去除两边空格
             let value = data[key];
+            // 返回值将替换掉第一个参数匹配到的结果，即会替换双花括号里边的内容
             return value;
           });
           childNodes[i].nodeValue = txt;
@@ -47,17 +52,17 @@
         }
       }
     }
-
-    // 返回节点的一个副本
-    // cloneNode(true)深度克隆，后代节点也会被克隆
-    let generateNode = tempNode.cloneNode(true);
-
-    console.log(tempNode);
-    compiler(generateNode,data);
-    console.log(generateNode);
     
-    // 用指定的节点替换当前节点的一个子节点，并返回被替换掉的节点
-    app.parentNode.replaceChild(generateNode,app);
+    let tempNode = document.querySelector('#app');
+    let data = {
+      name: 'Len',
+      message: 'Hello'
+    }
+    // cloneNode(true)深度克隆，后代节点也会被克隆，返回节点的一个副本
+    let generateNode = tempNode.cloneNode(true);
+    compiler(generateNode,data);
+    // replaceChild用指定的节点替换当前节点的一个子节点，并返回被替换掉的节点
+    app.parentNode.replaceChild(generateNode,app);// 替换app节点
   </script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vue</title>
+  <title>模版渲染</title>
 </head>
 <body>
   <div id="app">
@@ -15,22 +15,24 @@
 
   <script>
     function JGVue(options){
-      // 内部数据使用下划线开头，只读数据用$开头
+      // 变量命名原则：内部数据使用下划线开头，只读数据用$开头
       this._data = options.data;
       this._el = options.el;
 
-      // 将挂载DOM保存
+      // 获取要挂载的节点
       this.$el = this._templateDOM = document.querySelector(this._el);
-      // 获取父节点
+      // 获取挂载父节点
       this._parent = this._templateDOM.parentNode;
       // 渲染
       this.render();
     }
 
+    // render渲染函数
     JGVue.prototype.render = function(){
       this.compiler();
     }
 
+    // 编译模版
     JGVue.prototype.compiler = function(){
       // 复制一份挂载节点
       let realHTMLDOM = this._templateDOM.cloneNode(true);
