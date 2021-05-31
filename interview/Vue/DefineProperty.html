@@ -65,18 +65,19 @@
 		}
 
 		// 相当于声明了一个val变量来做初始值和连接get和set，使val和getter/setter函数形成一个闭包
-		function defineReactive(target,key,val){
+		function defineReactive(data,key,val){
 			// 在__ob__属性中新增一个Dep实例
 			let dep = new Dep();
 			if(arguments.length === 2){
 				// 如果没有传初始值，则读取赋值所传的key/value值
 				// 这里如果有多层嵌套对象，那么val就会是下一个嵌套的对象
-				// 这里的val = target[key]以及observe(val)对于循环对象变成响应式对象非常关键，会将一个嵌套对象defineReactive完之后再defineReactive下一个data的对象
-				val = target[key]
+				// 这里的val = data[key]以及observe(val)对于循环对象变成响应式对象非常关键，会将一个嵌套对象defineReactive完之后再回到外层defineReactive，然后继续下一个data的对象defineReactive
+				// var = {a:'aa',b:{c:'cc'},d:'dd'} defineReactive顺序为 a -> c -> b -> d;
+				val = data[key]
 			}
 			// 这里调用obseve的作用是循环递归各个层级的对象，使其都是Observer的实例，最终每个属性都会被defineReactive,拥有getter和setter函数，变成响应式
 			let childObj = observe(val);
-			Object.defineProperty(target,key,{
+			Object.defineProperty(data,key,{
 				enumerable: true,// 可枚举
 				configurable: true,
 				get(){
@@ -240,20 +241,20 @@
 				}
 			}
 
-			function observer(target){
-				if(typeof target !== 'object' || target === null){
-					return target
+			function observer(data){
+				if(typeof data !== 'object' || data === null){
+					return data
 				}
-				for(let key in target){
-					defineReactive(target,key,target[key]);
+				for(let key in data){
+					defineReactive(data,key,data[key]);
 				}
 			}
 
 
-			function defineReactive(target,key,value){
+			function defineReactive(data,key,value){
 				// 递归监听数据中的嵌套对象
 				observer(value);
-				Object.defineProperty(target,key,{
+				Object.defineProperty(data,key,{
 					get(){
 						return value
 					},

@@ -7,7 +7,7 @@
 
 相对于react和微信小程序对于属性的**侵入式**更改，Vue属于**非侵入式**
 
-> vue 是直接更改数据，如：this.num = 100
+> vue 是直接更改数据即可影响视图变化，如：this.num = 100
 > React 和 小程序则需要调用指定的封装方法来改变数据再改变视图
 > React: this.setState({num:10})
 > 小程序: setData({num: 10})
@@ -18,7 +18,7 @@
 
 ### 关于Object.defineProperty方法
 
-Object.defineProperty() 方法会直接在一个对象上定义一个新属性，或者修改一个对象的现有属性，并返回此**对象**。其关键属性`get`和`set`能够监测和设置对象指定属性，换句话说，只要对象有了`getter`和`setter`，那么就可以认为这个对象是响应式对象。
+Object.defineProperty() 方法会直接在一个对象上定义一个新属性，或者修改一个对象的现有属性，并返回此**对象**。其关键属性`get`和`set`能够监测和设置对象指定属性，换句话说，只要对象有了`getter`和`setter`，那么就可以认为这个对象是**响应式对象**，所以想要达到响应式的目的，那么就需要将所有对象的属性通过该方法来定义。
 
 ```javascript
 var book = {
@@ -26,17 +26,19 @@ var book = {
   type: 'web'
 }
 Object.defineProperty(book,'price',{
-  // 表示对象的属性是否可以被删除，以及除 value 和 writable 特性外的其他特性是否可以被修改。默认为false
+  // 表示该对象的属性是否可以被delete删除，以及除 value 和 writable 特性外的其他特性是否可以被修改。默认为false
   configurable: false,
-  // 是否只读，默认是false，只有为true时，才能通过该方法改变对象属性的值
+  // 是否只读，默认是false(只读)。为true时，才能通过该方法改变对象属性的值
   writable: false,
-  // 是否可以被枚举，默认是false，也就是不可枚举。只有为true时，才能被for...in循环出来
+  // 是否可以被枚举，默认是false(不可枚举)。只有为true时，才能被for...in等循环方法遍历出来
   enumerable: false,
+  // 属性值
   value: '100'
 })
 // 因为price属性被设置为false只读不可修改，所以这里的赋值是无效的
 book.price = '98';
 console.log(book.price); // 100
+// price属性不可枚举
 for(var k in book){
   console.log(k) // title、type
 }
@@ -68,49 +70,51 @@ for( var k in obj ){
 
 ```javascript
 let person = {}
+let tempValue;
 Object.defineProperty(person,'name',{
   // getter函数
   get(){
     // 当读取name属性时调用
     console.log('getter====')
-    return 'Len'// return默认是undefined
+    // 如果没有return值则默认为undefined
+    return tempValue;
   },
   // setter函数
   set(newValue){
-    // 当设置name属性时调用
+    // 当设置name属性时调用，能够通过newValue拿到要被设置的值
+    // 但是此时还是没法直接更改属性的值，因为属性值都是从getter函数获取的，这里用了一个全局的中间变量来连接getter和setter
     console.log('setter====',newValue)// “LewisLen”
-    return "Lewis"// return默认是undefined
+    tempValue = newValue
   }
 })
 person.name = "LewisLen"
-console.log(person.name)// Len
+console.log(person.name)// LewisLen
 ```
+
+> 利用 Object.defineProperty() 方法中的 getter 和 setter 来定义对象属性的行为，就可以称之为**数据劫持**，即可认为被定义的对象是**响应式对象**。
 
 ### defineReactive（响应式函数）
 
-从上面的代码中看出，直接更改obj的属性值，根本没有生效，但是能捕获到newValue，这是属性值都是从get的返回值中获取。
+从上面的代码中看出，直接更改 person 的 name 属性值，根本没有生效，但是能得到 newValue ，因为属性值都是从 getter 函数中的 return 值得到的。
 
 ```javascript
 let person = {}
 // 相当于在最外层加个中间的变量val，和getter/setter形成一个闭包
-function defineReactive(target,key,val){
-  if(arguments.length === 2){
-    // 如果没有传初始值，则读取赋值所传的key/value值
-    val = target[key]
-  }
-  Object.defineProperty(target,key,{
+function defineReactive(data,key,val = data[key]){
+  // 设置默认值，为所传的对象属性值
+  // val = data[key] 等价代码
+  // if(arguments.length === 2){
+  //   val = data[key]
+  // }
+  Object.defineProperty(data,key,{
     enumerable: true,
     configurable: true,
     get(){
-      // 当读取name属性时调用
-      console.log('getter====')
-      return temp
+      return val
     },
     set(newValue){
-      // 当设置name属性时调用
-      console.log('setter====',newValue)
       if(val === newValue) return;
-      temp = newValue
+      val = newValue
     }
   })
 }
@@ -119,7 +123,71 @@ person.name = "LewisLen"
 console.log(person)// "LewisLen"
 ```
 
-### Observer
+### Observer类
+
+多个属性遍历，有多少个对象就有多少个 Observer 实例
+
+```javascript
+class Observer{
+  constructor(obj){
+    this.walk(obj)
+  }
+  // 遍历每个对象的属性
+  walk (obj) {
+    // data属性组成的数组
+    const keys = Object.keys(obj)
+    for (let i = 0; i < keys.length; i++) {
+      // 给data属性对象添加getter和setter方法
+      defineReactive(obj, keys[i])
+    }
+  }
+}
+```
+
+但这里有个问题，Observer 类只能遍历传入的 data 第一层属性，然后 defineReactive 将其响应式，如果遇到多层（嵌套）对象，则没法将深层次的对象劫持，需要通过递归来完成深层次的遍历。
+
+```javascript
+// 观察方法（入口方法）
+function observe(obj){
+  // 必须保证要观察的data是对象，才能够用被 defineReactive
+  if(typeof obj !== 'object' || obj === null) return;
+  new Observer(obj);
+}
+class Observer{
+  constructor(obj){
+    this.walk(obj)
+  }
+  // 遍历每个对象的属性
+  walk (obj) {
+    // data属性组成的数组
+    const keys = Object.keys(obj)
+    for (let i = 0; i < keys.length; i++) {
+      // 给data属性对象添加getter和setter方法
+      defineReactive(obj, keys[i])
+    }
+  }
+}
+function defineReactive(data,key,val = data[key]){
+  // val设置默认值，为所传的对象属性值
+  // 这里需要需要看data的属性值是否是对象
+  // 如果val是对象，则需要再走一遍observe，以便给每个对象defineReactive
+  // 如果val不是对象，则observe直接return;，只给当前属性(对象)defineReactive
+  observe(val);
+  Object.defineProperty(data,key,{
+    enumerable: true,
+    configurable: true,
+    get(){
+      return val
+    },
+    set(newValue){
+      // 当对某个属性赋值时也有看你是对象，所以也需要observe
+      observe(val);
+      if(val === newValue) return;
+      val = newValue
+    }
+  })
+}
+```
 
 Observer主要作用是将每个(层级)属性能够被劫持到，实现响应式。
 
@@ -179,17 +247,17 @@ let _data = {
 }
 
 const _vm = new Proxy(_data,{
-  get(target,key){
-    console.log('gettter',' key==',key,' taget[key===]',target[key])
-    return target[key]
+  get(data,key){
+    console.log('gettter',' key==',key,' taget[key===]',data[key])
+    return data[key]
   },
-  set(target,key,newValue){
-    console.log('settter',' key==',key,' taget[key===]',target[key],' newValue===',newValue)
-    if(target[key] === newValue){
+  set(data,key,newValue){
+    console.log('settter',' key==',key,' taget[key===]',data[key],' newValue===',newValue)
+    if(data[key] === newValue){
       return;
     }
-    target[key] = newValue;
-    document.querySelector('#root').textContent = target[key];
+    data[key] = newValue;
+    document.querySelector('#root').textContent = data[key];
   }
 })
 ```
