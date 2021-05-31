@@ -60,7 +60,9 @@ function compiler(template,data){
         // groupContent参数要看正则表达式的分组情况，一个括号为一组，所以这里就表示第1组，即会获得双花括号内的变量名
         console.log('回调函数第1个参数groupContent',groupContent)
         let key = groupContent.trim(); // 去除两边空格
-        let value = data[key];
+        // 为了获取数据中多层对象的值 如obj.a.b
+        let value = getValueByObjPath(key)(data);
+        // let value = data[key];
         // 返回值将替换掉第一个参数匹配到的结果，即会替换双花括号里边的内容
         return value;
       });
@@ -73,13 +75,16 @@ function compiler(template,data){
   }
 }
 
-function getValueByObjPath(obj,path){
+function getValueByObjPath(path){
   // 为了获取数据中多层对象的值 如obj.a.b
   let paths = path.split('.');
-  let res = obj;
-  let prop;
-  while(prop = paths.shift()){
-    res = res[prop]
+  // 函数柯里化
+  return function(data){
+    let res = data;
+    let prop;
+    while(prop = paths.shift()){
+      res = res[prop]
+    }
+    return res;
   }
-  return res;
 }
