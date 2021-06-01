@@ -40,6 +40,40 @@ function defineReactive(data,key,val = data[key]){
   })
 }
 
+class Watcher{
+  // 变量命名原则：内部数据使用下划线开头，只读数据用$开头
+  constructor(data,objPath,callback){
+    this._data = data;
+    this._objPath = objPath;// 属性的路径，如obj.a.b
+    this._callback = callback;// 数据变化时触发回调
+    this._value = this.get();// 得到指定路径的value值
+  }
+  get(){
+    return getValueByObjPath(this._objPath)(this._data);
+  }
+  update(){
+    this._value = getValueByObjPath(this._objPath)(this._data);
+    // 当数据变化 执行回调函数 更新视图
+    this._callback();
+  }
+}
+
+function getValueByObjPath(path){
+  // 为了获取数据中多层对象的值 如obj.a.b
+  let paths = path.split('.');
+  // 函数柯里化
+  return function(data){
+    let res = data;
+    let prop;
+    while(prop = paths.shift()){
+      res = res[prop]
+    }
+    return res;
+  }
+}
+
+
+
 let obj = {
   book:{
     prdCode: 'BOOK0001',
@@ -52,3 +86,5 @@ let obj = {
   },
   msg: '书籍是人类进步的阶梯',
 }
+let tempValue = getValueByObjPath('book.prdCode')(obj)
+console.log(tempValue)
