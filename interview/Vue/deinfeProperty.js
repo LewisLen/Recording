@@ -72,6 +72,30 @@ function getValueByObjPath(path){
   }
 }
 
+// Dep类来管理 Watcher
+class Dep{
+  constructor(){
+    // 存放watcher
+    this.subs = []
+  }
+  // 收集依赖，说白了就是收集数据的变化
+  depend(){
+    this.addSubs(Dep.target)
+  }
+  // 派发通知更新，当数据变化之后通知更新视图
+  notify(){
+    const subs = [...this.subs];
+    // 通知每个wathcer作出对应的动作
+    subs.forEach( sub => {
+      sub.update();
+    })
+  }
+  addSubs(sub){
+    this.subs.push(sub)
+  }
+}
+// Dep类上的静态属性，不是实例上的属性，所以是全局唯一的target属性，保证了同一时间只能有一个全局的 Watcher 被计算
+Dep.target = null
 
 
 let obj = {

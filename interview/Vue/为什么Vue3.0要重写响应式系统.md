@@ -199,10 +199,32 @@ observe(obj) => 看obj上是否有__ob__属性 => 没有则需要new Observer()�
 Observer作用：1.间接递归监听data对象 2. 链接dep对象，调用delete和set数组的变异方法时获取observer的dep通知依赖watcher更新
 
 
-### Watcher类
+### Watcher类和Dep
 
-依赖：用到数据的地方，称之为依赖，也可以理解为数据
-Watcher：对于 Watcher 类，我的理解是相当于隐藏在后台的一个管理系统，保存着一些依赖（数据）的变化状态，当某个依赖（数据）发生变化，Watcher 再执行保存中的回调函数，从而通知对应依赖的页面进行渲染。
+- 依赖：用到数据的地方，称之为依赖，也可以理解为数据
+- Watcher：对于 Watcher 类，这是一个比较抽象的概念，应该是一个数据变化从而要发生变化（触发回调方法如派发更新）的这么一个类
+
+比如在双十一搞活动，有预售商品A售卖，那么在预售阶段，买家张三李四等就会去点击预购下定金，taobao后台系统就会在商品A对应的管理系统将买家信息收集起来，这时买家就处于等待阶段，等到商品A开售，taobao系统就会提醒买家支付尾款下单购买，购买之后，taobao商品的状态应该是等待发货，这就完成了发布-订阅模式的流程。
+这个例子当中，商品A就是依赖（data）的各类状态（data属性），买家张三李四就是 Watcher 的实例，买家在商品上架之后就可以点击预购，这时候taobao系统就是Dep来管理 Watcher 的一系列动作，收集买家的预售信息就是收集依赖，通知付尾款就是派发通知，买家的一些类动作之后，会引起商品信息（页面）的变化。
+
+
+```javascript
+// Dep类来管理 Watcher
+class Dep{
+  constructor(){
+    // 存放watcher
+    this.subs = []
+  }
+  // 收集依赖，说白了就是收集数据的变化
+  depend(){
+    
+  }
+}
+
+
+
+```
+
 
 
 
@@ -219,6 +241,7 @@ Watcher：对于 Watcher 类，我的理解是相当于隐藏在后台的一个�
 
 ### Dep类和Watcher类
 
+Wathcer 和 Dep 都是比较抽象的概念，
 - 把依赖收集到的代码封装成一个Dep类，它专门用来管理依赖，每个Observer的实例，成员中都有一个Dep实例
 - Watcher是一个中介，数据发生变化时通过Watcher中转，通知组件
 - depend()依赖，通过getter collect as dependency 收集依赖
