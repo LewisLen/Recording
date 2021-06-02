@@ -235,6 +235,31 @@ class Dep{
 Dep.target = null
 ```
 
+这个时候就需要去收集数据和根据数据的更新来通知 watcher 作出回应从而更新视图了。实例化 watcher 后，实例上的 get 方法就是获取指定路径的方法，也就是说只要在页面模版上渲染了那个属性如`{{person.name}}` 那么自然而然就会触发 person 的 name 属性上的 getter 方法，所以收集数据放在 getter 再好不过了。
+
+```javascript
+function defineReactive(data,key,val = data[key]){
+  // 每个属性都有一个Dep实例来管理 watcher
+  const dep = new Dep();
+  observe(val);
+  Object.defineProperty(data,key,{
+    enumerable: true,
+    configurable: true,
+    get(){
+      dep.depend(watcher实例)
+      return val
+    },
+    set(newValue){
+      // 当对某个属性赋值时也有看你是对象，所以也需要observe
+      observe(val);
+      if(val === newValue) return;
+      val = newValue
+      console.log('更新视图')
+    }
+  })
+}
+```
+
 
 
 
