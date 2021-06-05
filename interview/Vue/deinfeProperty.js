@@ -22,17 +22,21 @@ function defineReactive(data,key,val = data[key]){
   // val设置默认值，为所传的对象属性值
   // 这里需要需要看data的属性值是否是对象
   // 如果val是对象，则需要再走一遍observe，以便给每个对象defineReactive
-  // 如果val不是对象，则observe直接return;，只给当前属性(对象)defineReactive
+  // 如果val不是对象，则observe直接return;只给当前属性(对象)defineReactive
+  const dep = new Dep();// 用于收集watcher实例（函数方法）
   observe(val);
   Object.defineProperty(data,key,{
     enumerable: true,
     configurable: true,
     get(){
+      console.log('getter===',val)
+      dep.depend(watcher)
       return val
     },
     set(newValue){
       // 当对某个属性赋值时也有看你是对象，所以也需要observe
       observe(val);
+      dep.notify();
       if(val === newValue) return;
       val = newValue
       console.log('更新视图')
@@ -49,6 +53,7 @@ class Watcher{
     this._value = this.get();// 得到指定路径的value值
   }
   get(){
+    // 获取属性值
     return getValueByObjPath(this._objPath)(this._data);
   }
   update(){
@@ -72,7 +77,7 @@ function getValueByObjPath(path){
   }
 }
 
-// Dep类来管理 Watcher
+// Dep类来管理 Watcher实例
 class Dep{
   constructor(){
     // 存放watcher
@@ -98,17 +103,17 @@ class Dep{
 Dep.target = null
 
 
-let obj = {
-  book:{
-    prdCode: 'BOOK0001',
-    detail:{
-      price: '69',
-      subscribe:{
-        title: 'Kindle'
-      }
-    }
-  },
-  msg: '书籍是人类进步的阶梯',
-}
-let tempValue = getValueByObjPath('book.prdCode')(obj)
-console.log(tempValue)
+// let obj = {
+//   book:{
+//     prdCode: 'BOOK0001',
+//     detail:{
+//       price: '69',
+//       subscribe:{
+//         title: 'Kindle'
+//       }
+//     }
+//   },
+//   msg: '书籍是人类进步的阶梯',
+// }
+// let tempValue = getValueByObjPath('book.prdCode')(obj)
+// console.log(tempValue)

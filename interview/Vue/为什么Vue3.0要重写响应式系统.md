@@ -202,7 +202,8 @@ Observer作用：1.间接递归监听data对象 2. 链接dep对象，调用delet
 ### Watcher类和Dep
 
 - 依赖：用到数据的地方，称之为依赖，也可以理解为数据
-- Watcher：对于 Watcher 类，这是一个比较抽象的概念，应该是一个数据变化从而要发生变化（触发回调方法如派发更新）的这么一个类
+- Watcher类：对于 Watcher 类，这是一个比较抽象的概念，应该是一个数据变化从而要发生变化（触发回调方法如派发更新）的这么一个类。Watcher 实例会根据数据的变化来触发某些事件，通知视图更新
+- Dep类：用来管理 Watcher 实例
 
 比如在双十一搞活动，有预售商品A售卖，那么在预售阶段，买家张三李四等就会去点击预购下定金，taobao后台系统就会在商品A对应的管理系统将买家信息收集起来，这时买家就处于等待阶段，等到商品A开售，taobao系统就会提醒买家支付尾款下单购买，购买之后，taobao商品的状态应该是等待发货，这就完成了发布-订阅模式的流程。
 这个例子当中，商品A就是依赖（data）的各类状态（data属性），买家张三李四就是 Watcher 的实例，买家在商品上架之后就可以点击预购，这时候taobao系统就是Dep来管理 Watcher 的一系列动作，收集买家的预售信息就是收集依赖，通知付尾款就是派发通知，买家的一些类动作之后，会引起商品信息（页面）的变化。
@@ -237,6 +238,8 @@ Dep.target = null
 
 这个时候就需要去收集数据和根据数据的更新来通知 watcher 作出回应从而更新视图了。实例化 watcher 后，实例上的 get 方法就是获取指定路径的方法，也就是说只要在页面模版上渲染了那个属性如`{{person.name}}` 那么自然而然就会触发 person 的 name 属性上的 getter 方法，所以收集数据放在 getter 再好不过了。
 
+在获取属性的时候收集依赖，在设置属性的时候触发之前收集的依赖。
+
 ```javascript
 function defineReactive(data,key,val = data[key]){
   // 每个属性都有一个Dep实例来管理 watcher
@@ -246,20 +249,58 @@ function defineReactive(data,key,val = data[key]){
     enumerable: true,
     configurable: true,
     get(){
-      dep.depend(watcher实例)
+      // 在get中收集依赖
+      dep.depend('watcher实例')
       return val
     },
     set(newValue){
       // 当对某个属性赋值时也有看你是对象，所以也需要observe
       observe(val);
+      // 派发更新依赖
+      dep.notify();
       if(val === newValue) return;
       val = newValue
       console.log('更新视图')
     }
   })
 }
+
+// Watcher类
+class Watcher{
+  // 变量命名原则：内部数据使用下划线开头，只读数据用$开头
+  constructor(data,objPath,callback){
+    this._data = data;
+    this._objPath = objPath;// 属性的路径，如obj.a.b
+    this._callback = callback;// 数据变化时触发回调
+    this._value = this.get();// 得到指定路径的value值
+  }
+  get(){
+    return getValueByObjPath(this._objPath)(this._data);
+  }
+  update(){
+    this._value = getValueByObjPath(this._objPath)(this._data);
+    // 当数据变化 执行回调函数 更新视图
+    this._callback();
+  }
+}
+
+function getValueByObjPath(path){
+  // 为了获取数据中多层对象的值 如obj.a.b
+  let paths = path.split('.');
+  // 函数柯里化
+  return function(data){
+    let res = data;
+    let prop;
+    while(prop = paths.shift()){
+      res = res[prop]
+    }
+    return res;
+  }
+}
 ```
 
+但是这里仍然会有个问题，就是 dep.depend('watcher实例') 中的 watcher实例哪里获取，
+实例化 Watcher 时会调用 get 方法会获取数据，
 
 
 
