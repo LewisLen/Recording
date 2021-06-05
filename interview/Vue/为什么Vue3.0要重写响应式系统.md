@@ -190,24 +190,46 @@ function defineReactive(data,key,val = data[key]){
 }
 ```
 
-当设置某个属性值的时候，会触发setter函数，里边的newValue也得被observe()
-通过代码可以得知，通过 observe -> Observer -> defineReactive 实现对每个对象的属性递归处理，在每个(层级)属性上添加了 getter 和 setter 函数，也是需要实现响应式，进行劫持，所以需要在 setter 中对添加的 value 值进行 observe。
+
+通过代码可以得知，通过 observe -> Observer -> defineReactive 实现对每个对象的属性递归处理，在每个(层级)属性上添加了 getter 和 setter 函数，也就是需要实现响应式，进行劫持。当设置某个属性值的时候，会触发setter函数，里边的newValue也得被observe()，即被添加的属性值为对象的时候，也需要被劫持。所以需要在 setter 中对添加的 value 值进行 observe。
+
+```javascript
+const data = {
+  a: {
+    b: 1
+  }
+}
+```
+
+到这里被劫持的数据对象会被转换为：
+
+```javascript
+const data = {
+  a: {
+    b: 1,
+    __ob__: {value, dep, vmCount}
+  },
+  __ob__: {value, dep, vmCount}
+}
+```
 
 
+<!-- 
+暂时未体现，为源码中的操作
 observe(obj) => 看obj上是否有__ob__属性 => 没有则需要new Observer()观察者实例 => 遍历下一层属性，逐个defineReactive实现响应式。
-
 Observer作用：1.间接递归监听data对象 2. 链接dep对象，调用delete和set数组的变异方法时获取observer的dep通知依赖watcher更新
-
+ -->
 
 ### Watcher类和Dep
 
-- 依赖：用到数据的地方，称之为依赖，也可以理解为数据
+- 依赖：用到数据的地方(如组件)，称之为依赖，也可以理解为数据
 - Watcher类：对于 Watcher 类，这是一个比较抽象的概念，应该是一个数据变化从而要发生变化（触发回调方法如派发更新）的这么一个类。Watcher 实例会根据数据的变化来触发某些事件，通知视图更新
 - Dep类：用来管理 Watcher 实例
 
 比如在双十一搞活动，有预售商品A售卖，那么在预售阶段，买家张三李四等就会去点击预购下定金，taobao后台系统就会在商品A对应的管理系统将买家信息收集起来，这时买家就处于等待阶段，等到商品A开售，taobao系统就会提醒买家支付尾款下单购买，购买之后，taobao商品的状态应该是等待发货，这就完成了发布-订阅模式的流程。
 这个例子当中，商品A就是依赖（data）的各类状态（data属性），买家张三李四就是 Watcher 的实例，买家在商品上架之后就可以点击预购，这时候taobao系统就是Dep来管理 Watcher 的一系列动作，收集买家的预售信息就是收集依赖，通知付尾款就是派发通知，买家的一些类动作之后，会引起商品信息（页面）的变化。
 
+先研究渲染函数中的 Watcher
 
 ```javascript
 // Dep类来管理 Watcher
@@ -244,7 +266,7 @@ Dep.target = null
 function defineReactive(data,key,val = data[key]){
   // 每个属性都有一个Dep实例来管理 watcher
   const dep = new Dep();
-  observe(val);
+  let childOb = observe(val);// 最后返回的ob当中也有dep实例 在vue.set时触发派发更新依赖
   Object.defineProperty(data,key,{
     enumerable: true,
     configurable: true,
@@ -264,6 +286,10 @@ function defineReactive(data,key,val = data[key]){
     }
   })
 }
+
+
+> 每个属性会有一个通过闭包得到的 dep 来收集 watcher ，并且通过将Observer实例化def定义的属性__ob__得到了一份 dep 实例也是用来收集 watcher。但是__ob__中的 dep 的触发时机是在使用 vue.$set 或 vue.set 给数据对象添加新属性。而 defineProperty中的 dep 实例则是在数据对象在取值或值被修改时触发。两者收集的东西是一样的。
+> 所以 __ob__ 属性以及 __ob__.dep 的主要作用是为了添加、删除属性时有能力触发依赖
 
 // Watcher类
 class Watcher{

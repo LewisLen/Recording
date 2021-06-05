@@ -6,6 +6,11 @@ function observe(obj){
 }
 class Observer{
   constructor(obj){
+    this.value = obj;
+    this.dep = new Dep();
+    // 则Observer实例上都会保存数据对象本身，以及一个dep实例
+    // Observer实例的dep也是用来收集watcher 只是触发的时机和depfineProperty中dep收集到的watcher不一样
+    def(obj,'__ob__',this)
     this.walk(obj)
   }
   // 遍历每个对象的属性
@@ -23,8 +28,10 @@ function defineReactive(data,key,val = data[key]){
   // 这里需要需要看data的属性值是否是对象
   // 如果val是对象，则需要再走一遍observe，以便给每个对象defineReactive
   // 如果val不是对象，则observe直接return;只给当前属性(对象)defineReactive
-  const dep = new Dep();// 用于收集watcher实例（函数方法）
-  observe(val);
+  const dep = new Dep();// 用于收集watcher实例（函数方法） 每个属性字段都通过闭包的形式引用属于自己的Dep实例对象
+  // 被defineReactive化的属性都通过闭包引用属于自己的 Dep 实例和 childOb对象
+  // 这里的childOb就是Observer的实例
+  let childOb = observe(val);
   Object.defineProperty(data,key,{
     enumerable: true,
     configurable: true,
@@ -36,9 +43,10 @@ function defineReactive(data,key,val = data[key]){
     set(newValue){
       // 当对某个属性赋值时也有看你是对象，所以也需要observe
       observe(val);
-      dep.notify();
       if(val === newValue) return;
       val = newValue
+      // 如果有数据更新，则派发依赖，更新视图
+      dep.notify();
       console.log('更新视图')
     }
   })
