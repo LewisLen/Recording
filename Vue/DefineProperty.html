@@ -23,11 +23,23 @@
 			arr: [1,3,3,4]
 		}
 
-		var uid = 0;
+		function getValueByObjPath(path){
+			// 为了获取数据中多层对象的值 如obj.a.b
+			let paths = path.split('.');
+			// 函数柯里化
+			return function(data){
+				let res = data;
+				let prop;
+				while(prop = paths.shift()){
+					res = res[prop]
+				}
+				return res;
+			}
+		}
+
 		class Dep{
 			constructor(){
 				console.log('Dep类');
-				this.id = uid++;
 				// 订阅者存储。存放wather实例
 				this.subs = [];
 			}
@@ -43,18 +55,32 @@
 				}
 			}
 			notify(){
-				console.log('notify函数通知视图更新')
 				// 潜复制
 				const subs = this.subs.slice();
 				for(let i = 0;i<subs.length;i++){
 					subs[i].update();
 				}
+				console.log('notify函数通知视图更新')
 			}
 		}
 
 		class Watcher{
-			constructor(){
-				console.log('Watcher类')
+			// 变量命名原则：内部数据使用下划线开头，只读数据用$开头
+			constructor(data,objPath,callback){
+				this._data = data;
+				this._objPath = objPath;// 观察的表达式(属性路径)，如obj.a.b 在源码中第一次new Watcher 时传入的是 updateComponent 主要是调用_render(渲染虚拟DOM)和_update(将vnode渲染成真实DOM)函数的作用
+				this._callback = callback;// 观察的表达式变化时触发的回调函数
+				this._value = this.get();// 得到指定路径的value值
+			}
+			get(){
+				// 设置 watcher 实例对象为全局属性 watcherTarget
+				Dep.watcherTarget = this;
+				return getValueByObjPath(this._objPath)(this._data);
+			}
+			update(){
+				this._value = getValueByObjPath(this._objPath)(this._data);
+				// 当数据变化 执行回调函数 更新视图
+				this._callback();
 			}
 		}
 

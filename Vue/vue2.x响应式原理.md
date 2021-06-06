@@ -339,9 +339,14 @@ function defineReactive(data,key,val = data[key]){
 get(){
   // 设置 watcher 实例对象为全局属性 watcherTarget，vue源码中用的是Dep.target
   window.watcherTarget = this;
-  return getValueByObjPath(this._objPath)(this._data);
+  const value = getValueByObjPath(this._objPath)(this._data);
+  window.watcherTarget = null;
+  return value;
 }
 ```
+
+这里会有个问题，当对象obj:{a:'a',b:'b'}时，会先实例化一个 watcherA 依赖于obj.a，window.watcherTarget 则等于 watcherA。当访问 obj.b 时，getter 函数会调用 dep.depend() 收集依赖 window.watcherTarget，此时就会收集到 watcherA，依赖不对，所以 window.watcherTarget 赋值后重置。
+
 
 
 > 这里需要的是，因为是在 get 方法中赋值，所以不能这样写 window.target = new Watcher()，因为实例化执行到 getter 时，实例化 watcher 还未执行完。

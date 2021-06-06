@@ -7,10 +7,10 @@ function observe(obj){
 class Observer{
   constructor(obj){
     this.value = obj;
-    this.dep = new Dep();
+    // this.dep = new Dep();
     // 则Observer实例上都会保存数据对象本身，以及一个dep实例
-    // Observer实例的dep也是用来收集watcher 只是触发的时机和depfineProperty中dep收集到的watcher不一样
-    def(obj,'__ob__',this)
+    // Observer实例的dep也是用来收集 watcher 只是触发的时机和depfineProperty中dep收集到的watcher不一样
+    // def(obj,'__ob__',this)
     this.walk(obj)
   }
   // 遍历每个对象的属性
@@ -31,12 +31,14 @@ function defineReactive(data,key,val = data[key]){
   const dep = new Dep();// 用于收集watcher实例（函数方法） 每个属性字段都通过闭包的形式引用属于自己的Dep实例对象
   // 被defineReactive化的属性都通过闭包引用属于自己的 Dep 实例和 childOb对象
   // 这里的childOb就是Observer的实例
-  let childOb = observe(val);
+  // let childOb = observe(val);
+  observe(val);
   Object.defineProperty(data,key,{
     enumerable: true,
     configurable: true,
     get(){
-      dep.depend(watcher)
+      dep.depend(Dep.watcherTarget);
+      // if(childOb) childOb.dep.depend();
       return val
     },
     set(newValue){
@@ -47,7 +49,6 @@ function defineReactive(data,key,val = data[key]){
       val = newValue
       // 如果有数据更新，则派发依赖，更新视图
       dep.notify();
-      console.log('更新视图')
     }
   })
 }
@@ -57,14 +58,16 @@ class Watcher{
   // 变量命名原则：内部数据使用下划线开头，只读数据用$开头
   constructor(data,objPath,callback){
     this._data = data;
-    this._objPath = objPath;// 观察的表达式(属性路径)，如obj.a.b 在源码中第一次new Watcher 时传入的是 updateComponent 主要是调用_render(渲染虚拟DOM)和_update(将vnode渲染成真实DOM)函数的作用
+    this._objPath = objPath;// 观察的表达式(属性路径)，如 obj.a.b 在源码中第一次new Watcher 时传入的是 updateComponent 主要是调用_render(渲染虚拟DOM)和_update(将vnode渲染成真实DOM)函数的作用
     this._callback = callback;// 观察的表达式变化时触发的回调函数
     this._value = this.get();// 得到指定路径的value值
   }
   get(){
     // 设置 watcher 实例对象为全局属性 watcherTarget
     Dep.watcherTarget = this;
-    return getValueByObjPath(this._objPath)(this._data);
+    const value = getValueByObjPath(this._objPath)(this._data);
+    Dep.watcherTarget = null;
+    return value;
   }
   update(){
     this._value = getValueByObjPath(this._objPath)(this._data);
@@ -95,7 +98,7 @@ class Dep{
   }
   // 收集依赖，说白了就是收集数据的变化
   depend(){
-    this.addSubs(Dep.watcherTarget)
+    if(Dep.watcherTarget) this.addSubs(Dep.watcherTarget);
   }
   // 派发通知更新，当数据变化之后通知更新视图
   notify(){

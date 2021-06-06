@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue</title>
+  <script src="./defineProperty.js"></script>
+</head>
+<body>
+  <script>
+    let data = {
+      len: {
+        name: 'LewisLen',
+        code: '0001',
+        hobby:{
+          "game": '2k',
+          "sport": 'running'
+        }
+      },
+      wade: {
+        name: 'wade',
+        code: '0003',
+        hobby:{
+          "game": '2k',
+          "sport": 'basketball'
+        }
+      }
+    }
+    observe(data);
+
+    new Watcher(data,'len.name',() => {
+      console.log('len名字被改变了')
+    })
+
+    new Watcher(data,'wade.name',() => {
+      console.log('wade名字被改变了')
+    })
+  </script>
+</body>
+</html>
