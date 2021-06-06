@@ -76,7 +76,9 @@
 				val = data[key]
 			}
 			// 这里调用obseve的作用是循环递归各个层级的对象，使其都是Observer的实例，最终每个属性都会被defineReactive,拥有getter和setter函数，变成响应式
-			let childObj = observe(val);
+			// 被defineReactive化的属性都通过闭包引用属于自己的 Dep 实例和 childOb对象
+			// 这里的childOb就是Observer的实例
+			let childOb = observe(val);
 			Object.defineProperty(data,key,{
 				enumerable: true,// 可枚举
 				configurable: true,
@@ -86,7 +88,7 @@
 					if(Dep.target){
 						// 收集依赖
 						dep.depend()
-						if(childObj) childObj.dep.depend();
+						if(childOb) childOb.dep.depend();
 					}
 					return val
 				},
@@ -139,7 +141,7 @@
 				console.log('Observer观察者类，obj值===',obj);
 				// 新增一个Dep类实例，每个Observer的实例都会有个Dep实例
 				let dep = new Dep();
-				// 将类的实例用defineProperty定义属性，这里的this是Observer的实例
+				// 将类的实例用defineProperty定义属性，这里的this是Observer的实例，所以数据对象的__ob__其实就是Observer的实例
 				def(obj,'__ob__',this);
 				console.log('Observer====obj',obj);
 				if(Array.isArray(obj)){
@@ -171,7 +173,7 @@
 		function observe(obj){
 			// 必须保证要观察的data是对象
 			if(typeof obj !== 'object' || obj === null) return;
-			// ob变量存储的是Observer的实例，__ob__是Observer实例的属性
+			// ob变量存储的是Observer的实例，__ob__是Observer实例
 			var ob;
 			// 初始的ob是undefined，通过new Observer的目的是让ob成为Observer的实例，在Observer上通过def来定义__ob__属性，即可给data上的每个对象添加__ob__属性
 			if(typeof obj.__ob__ !== 'undefined'){

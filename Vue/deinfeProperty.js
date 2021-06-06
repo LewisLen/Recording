@@ -36,11 +36,11 @@ function defineReactive(data,key,val = data[key]){
     enumerable: true,
     configurable: true,
     get(){
-      console.log('getter===',val)
       dep.depend(watcher)
       return val
     },
     set(newValue){
+      console.log('getter被调用===',newValue)
       // 当对某个属性赋值时也有看你是对象，所以也需要observe
       observe(val);
       if(val === newValue) return;
@@ -52,16 +52,18 @@ function defineReactive(data,key,val = data[key]){
   })
 }
 
+// Watcher类
 class Watcher{
   // 变量命名原则：内部数据使用下划线开头，只读数据用$开头
   constructor(data,objPath,callback){
     this._data = data;
-    this._objPath = objPath;// 属性的路径，如obj.a.b
-    this._callback = callback;// 数据变化时触发回调
+    this._objPath = objPath;// 观察的表达式(属性路径)，如obj.a.b 在源码中第一次new Watcher 时传入的是 updateComponent 主要是调用_render(渲染虚拟DOM)和_update(将vnode渲染成真实DOM)函数的作用
+    this._callback = callback;// 观察的表达式变化时触发的回调函数
     this._value = this.get();// 得到指定路径的value值
   }
   get(){
-    // 获取属性值
+    // 设置 watcher 实例对象为全局属性 watcherTarget
+    window.watcherTarget = this;
     return getValueByObjPath(this._objPath)(this._data);
   }
   update(){
@@ -93,7 +95,7 @@ class Dep{
   }
   // 收集依赖，说白了就是收集数据的变化
   depend(){
-    this.addSubs(Dep.target)
+    this.addSubs(Dep.watcherTarget)
   }
   // 派发通知更新，当数据变化之后通知更新视图
   notify(){
@@ -108,7 +110,7 @@ class Dep{
   }
 }
 // Dep类上的静态属性，不是实例上的属性，所以是全局唯一的target属性，保证了同一时间只能有一个全局的 Watcher 被计算
-Dep.target = null
+Dep.watcherTarget = null
 
 
 // let obj = {
