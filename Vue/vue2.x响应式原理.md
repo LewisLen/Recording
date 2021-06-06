@@ -284,7 +284,7 @@ function getValueByObjPath(path){
 
 定义了 Watcher 类，那什么时候实例化呢？从`src/core/instance/init.js`中的`_int`方法可以得知，`$mount`方法是将组件挂载到给定元素上的函数。而`$mount`又是通过`mountComponent`函数去真正的挂载组件。在 `mountComponent`方法中执行完`beforeMount`之后，定义了`updateComponent`函数，这个函数是传入`Watcher`类的第二个参数，作用就是：把渲染函数生成的虚拟DOM渲染成真正的DOM。
 
-也就是说在 initData -> initLifecycle 中，在挂载 DOM 过程中调用了 mountComponet 方法生成真实 DOM 前（beforeMount后，Mounted前）在当前组件 vm 中实例化了 Watcher
+也就是说在 initData -> initLifecycle 中，在挂载 DOM 过程中调用了 mountComponet 方法生成真实 DOM 前（beforeMount后，Mounted前）在当前组件 vm 中实例化了 Watcher。
 
 ```javascript
 // vue源码片段 lifecycle.js文件
@@ -343,12 +343,32 @@ get(){
 }
 ```
 
+
 > 这里需要的是，因为是在 get 方法中赋值，所以不能这样写 window.target = new Watcher()，因为实例化执行到 getter 时，实例化 watcher 还未执行完。
 > 每个属性会有一个通过闭包得到的 dep 来收集 watcher ，(vue源码)并且通过将 Observer 实例化def定义的属性__ob__得到了一份 dep 实例也是用来收集 watcher。但是__ob__中的 dep 的触发时机是在使用 vue.$set 或 vue.set 给数据对象添加新属性。而 defineProperty中的 dep 实例则是在数据对象在取值或值被修改时触发。两者收集的东西是一样的。
 > 所以在vue源码中 __ob__ 属性以及 __ob__.dep 的主要作用是为了 vue.$set 添加、删除属性时有能力触发依赖
-
-
 > 在getter中收集依赖，在setter中触发依赖
+
+
+整体过程：
+
+```html
+<div id="app">
+  <p>{{name}}</p>
+</div>
+<script>
+  var app = new Vue({
+    el: "#app",
+    data:{
+      name: 'LewisLen',
+      age: '80'
+    }
+  })
+</script>
+```
+
+1. 在初始化 initState 阶段，会对数据对象 data 进行劫持，为每个属性添加 getter 和 setter 函数，以及一个 Dep 实例
+2. html模版将会被编译（mountComponent）成渲染函数，接着就会创建一个渲染函数的 watcher 实例（触发updateComponent)，对渲染函数求值。求值即调用 watcher 实例中的 get 方法，将实例对象赋值给一个全局变量 window.watcherTarget(Dep.target);，进而触发了数据对象 name 属性的 getter 函数，则 watcher 实例收集到 name 属性放入到 name 属性 dep 实例对象中。当修改 name 属性时，则会触发 name 的 setter 方法，这时就会调用 dep 实例中的 notify 方法去更新视图。
 
 ## Vue2.x响应式原理（Object.definePropety)
 
@@ -361,3 +381,11 @@ get(){
 
 - 对于data是用循环来进行劫持的，对于data属性维护是用for循环的方式，性能方面差一些
 - 由于JavaScript的限制，Vue不能监测数组和对象的变化，需要特殊处理
+
+
+## 参考文章
+
+- http://caibaojian.com/vue-design/art/7vue-reactive.html
+- https://juejin.cn/post/6844903561327820808
+- https://juejin.cn/post/6932659815424458760
+- [vue实例化过程](https://www.cnblogs.com/gerry2019/p/12001661.html)

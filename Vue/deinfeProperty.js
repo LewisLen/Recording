@@ -63,7 +63,7 @@ class Watcher{
   }
   get(){
     // 设置 watcher 实例对象为全局属性 watcherTarget
-    window.watcherTarget = this;
+    Dep.watcherTarget = this;
     return getValueByObjPath(this._objPath)(this._data);
   }
   update(){
@@ -110,20 +110,5 @@ class Dep{
   }
 }
 // Dep类上的静态属性，不是实例上的属性，所以是全局唯一的target属性，保证了同一时间只能有一个全局的 Watcher 被计算
-Dep.watcherTarget = null
-
-
-// let obj = {
-//   book:{
-//     prdCode: 'BOOK0001',
-//     detail:{
-//       price: '69',
-//       subscribe:{
-//         title: 'Kindle'
-//       }
-//     }
-//   },
-//   msg: '书籍是人类进步的阶梯',
-// }
-// let tempValue = getValueByObjPath('book.prdCode')(obj)
-// console.log(tempValue)
+// window.watcherTarget也是一样的，只要是全局属性即可
+Dep.watcherTarget = null;
