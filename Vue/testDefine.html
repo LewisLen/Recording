@@ -30,12 +30,18 @@
     observe(data);
 
     new Watcher(data,'len.name',() => {
+      // 这里在Vue源码中调用的是 updateComponent
       console.log('len名字被改变了')
     })
-
-    new Watcher(data,'wade.name',() => {
-      console.log('wade名字被改变了')
+    new Watcher(data,'len.code',() => {
+      // 这里在Vue源码中调用的是 updateComponent
+      console.log('len-code被改变了')
     })
+
+    // new Watcher(data,'wade.name',() => {
+    //   // 这里在Vue源码中调用的是 updateComponent
+    //   console.log('wade名字被改变了')
+    // })
   </script>
 </body>
 </html>
