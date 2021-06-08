@@ -20,12 +20,29 @@
 				}
 			},
 			msg: '书籍是人类进步的阶梯',
-			arr: [1,3,3,4]
+			// arr: [1,3,3,4]
+			list:[
+				{id: '1',name: '书籍1'},
+				{id: '2',name: '书籍2'},
+			]
 		}
 
 
+		// 判断是否是对象
+		function isObject(obj){
+			return obj !== null && typeof obj === 'object'
+		}
+
+
+		// 判断是否是实例自身的属性
+		function hasOwn(obj,key){
+			return Object.prototype.hasOwnProperty.call(obj, key) && !(key in obj);
+		}
+
+
+		// 根据对象表达式获取对应的值，如obj.a.b
+		// 在组件中可能是{{ person.name }}
 		function getValueByObjPath(path){
-			// 根据对象表达式获取对应的值，如obj.a.b
 			let paths = path.split('.');
 			// 函数柯里化
 			return function(data){
@@ -38,12 +55,60 @@
 			}
 		}
 
-    // 判断是实例属性还是原型属性
-		function hasPrototypeProperty(obj, key) {
-			// 实例属性：false，原型属性：true
-			return !obj.hasOwnProperty(key) && (key in obj);
+
+		// 将传入的对象走一层 Object.deineProperty方法来定义其属性
+		// 主要还是用于定义__ob__属性
+		const def = (obj,key,value,enumerable) => {
+			Object.defineProperty(obj,key,{
+				value,
+				enumerable: !!enumerable,// 是否可枚举
+				writable: true, // 是否可写
+				configurable: false // 不可配置被删除
+			})
 		}
 
+
+		function newArrayMethods(){
+			// 其中slice不会改变原数组，所以不需要重写，劫持
+			const methodsToPatch = ['push','pop','shift','unshift','splice','sort','reserve'];
+			// 获取数组原型上的方法{}
+			const arrayProto = Array.prototype;
+			// 以 arrayProto 为原型,创建一个含有数组方法的对象
+			const arrayMethods = Object.create(arrayProto);// 相当于 arrayMethods.__proto__ = arrayProto;
+			// 会将传进来的 value 值的__proto__属性指向 arrayMethods，value.__proto__ = arrayMethods;
+			// 会查找重写的 push 等方法，没有则通过原型链继续网上找方法
+			methodsToPatch.forEach(methodName => {
+				// 给newArrayPrototypeObj添加方法
+				arrayMethods[methodName] = function(...args){
+					// 调用原数组的方法才能真正的执行
+					// 因为这里的方法都是传进来需要被检测的对象调用的，所以this就是指传进来需要被检测的对象
+					// 在Observer类上给每个被劫持的对象都添加了__ob__属性，__ob__属性就是Observer实例，所以有walk 和 observeArray 的方法
+					let ob = this.__ob__;
+					const result = arrayProto[methodName].call(this,...args);
+					// 添加的元素可能还是对象
+					let inserted;// 插入的元素
+					switch(methodName){
+						// push和unshift的就是插入元素
+						case 'push':
+						case 'unshift':
+							inserted = args;
+						// 可以新增 删除 修改
+						// arr.splice(开始的位置,删除的个数,'插入的数组')
+						case 'splice':
+							inserted = args.slice(2);
+						default:
+							break;
+					}
+					// 如果插入的元素还是数组则需要继续劫持
+					if(inserted) ob.observeArray(inserted);
+					return result;
+				}
+			})
+			return arrayMethods;
+		}
+
+
+		// 管理 watcher 的类
 		class Dep{
 			constructor(){
 				// 存放观察者wather
@@ -54,9 +119,9 @@
 			}
 			// 收集观察者watcher
 			depend(){
-				// Dep.target是全局唯一值
-				if(Dep.target){
-					this.addSub(Dep.target);
+				// Dep.watcherTarget是全局唯一值
+				if(Dep.watcherTarget){
+					this.addSub(Dep.watcherTarget);
 				}
 			}
       // 数据变化，派发watcher执行对应方法
@@ -68,6 +133,8 @@
 				}
 			}
 		}
+		Dep.watcherTarget = null;
+
 
 		class Watcher{
 			// 变量命名原则：内部数据使用下划线开头，只读数据用$开头
@@ -90,10 +157,9 @@
 		}
 
 
-
 		// 相当于声明了一个val变量来做初始值和连接get和set，使val和getter/setter函数形成一个闭包
 		// 目的就是给data对象的每个属性添加getter和setter方法，进行劫持
-		function defineReactive(data,key,val){
+		function defineReactive(target,key,val){
 			// 在__ob__属性中新增一个Dep实例
 			let dep = new Dep();
 			if(arguments.length === 2){
@@ -101,78 +167,52 @@
 				// 这里如果有多层嵌套对象，那么val就会是下一个嵌套的对象
 				// 这里的val = data[key]以及observe(val)对于循环对象变成响应式对象非常关键，会将一个嵌套对象defineReactive完之后再回到外层defineReactive，然后继续下一个data的对象defineReactive
 				// var = {a:'aa',b:{c:'cc'},d:'dd'} defineReactive顺序为 a -> c -> b -> d;
-				val = data[key]
+				val = target[key]
 			}
-			// 这里调用obseve的作用是循环递归各个层级的对象，使其都是Observer的实例，最终每个属性都会被defineReactive,拥有getter和setter函数，变成响应式
-			// 被defineReactive化的属性都通过闭包引用属于自己的 Dep 实例和 childOb对象
-			// 这里的childOb就是Observer的实例
+			// 这里调用obseve的作用是循环递归各个层级的对象，使其都是Observer的实例，最终调用walk方法，使得每个属性都会被defineReactive,拥有getter和setter函数，变成响应式，进行劫持
+			// 被 defineReactive 化的属性都通过闭包引用属于自己的 Dep 实例和 childOb对象
+			// 这里的 childOb 就是 Observer 的实例
 			let childOb = observe(val);
-			Object.defineProperty(data,key,{
+			Object.defineProperty(target,key,{
 				enumerable: true,// 可枚举
 				configurable: true,
 				get(){
 					// 当读取name属性时调用
-					console.log('defineReactive的getter函数被调用，属性==== ',key ,'  val值====  ',val)
-					if(Dep.target){
+					if(Dep.watcherTarget){
 						// 收集依赖
-						dep.depend()
+						dep.depend();
+						console.log('getter函数被调用，val值为=== ',val);
 						if(childOb) childOb.dep.depend();
 					}
 					return val
 				},
 				set(newValue){
 					// 当设置name属性时调用
-					console.log('defineReactive的setter函数被调用val的值=== ',val,'  newValue的值===  ',newValue);
-					// 当设置属性为对象的时候也要observe，使其都是Observer的实例，最终每个属性都会被defineReactive,拥有getter和setter函数，变成响应式
+					// 当设置属性为对象的时候也要 observe，使其也是 Observer 的实例，最终被新增的属性也被 defineReactive ,拥有getter和setter函数，变成响应式
+					console.log('setter函数被调用val值为===',val);
 					observe(val);
 					if(newValue === val) return;
-					val = newValue;
+					val = newValue
 					// 通知视图更新
 					dep.notify();
+					console.log('setter函数被调用newValue值为===',newValue);
 				}
 			})
 		}
 
-		// 将传入的对象走一层 Object.deineProperty方法来定义其属性
-		const def = (obj,key,value,enumerable) => {
-			// 这里传进来的value值是Observer的实例，保存在__ob__属性上，属性是__ob__ 也就是通过观察对象上是否有__ob__属性来判断对象是否有setter和getter函数，是否被响应式处理
-			Object.defineProperty(obj,key,{
-				value,
-				enumerable: !!enumerable,// 是否可枚举
-				writable: true, // 是否可写
-				configurable: true // 
-			})
-		}
-
-
-		// const arrMethods = ['push','pop','unshift','splice','splice','sort','reserve'];
-		// // 获取数组原型对象，原型对象上有数组方法如push\pop等
-		// const arrayProto = Array.prototype;
-		// // 以数组原型对象(arrayProto)为原型，创建一个原型对象上含有数组方法的对象，也就是该对象是可以调用
-		// const newArrayPrototypeObj = Object.create(arrayProto);
-		// console.log(newArrayPrototypeObj instanceof Array)
-		// arrMethods.forEach(methodName => {
-		// 	// 保存数组原型上的方法
-		// 	const original = arrayProto[methodName];
-		// 	def(newArrayPrototypeObj,methodName,function(...arguments){
-		// 		// 用到this，不能用箭头函数
-		// 		// arrMethods也有数组原型中的方法了
-		// 		console.log('改写数组方法')
-		// 		// original.apply(this,arguments);
-		// 	},false)
-		// })
-
-		// 实现各个层级对象的属性能够被侦测（即被观察observe，添加getter和setter函数）的类，有多少个对象就有多少个Observer实例
+		// 实现各个层级对象的属性能够被侦测（即被观察observe）的类，最终都会被 defineReactive
 		class Observer{
 			constructor(obj){
-				// 新增一个Dep类实例，每个Observer的实例都会有个Dep实例
-				let dep = new Dep();
-				// 这里的this是Observer的实例
-				// obj.__ob__ = this; 那么每一个被监控的对象都会有一个__ob__属性，__ob__属性上会有walk和observeArray方法了。但是直接这么定义会导致死循环，一直会去执行observeArray和walk等方法
-				def(obj,'__ob__',this)
+				this.value = obj;
+				// 新增一个Dep类实例，每个Observer的实例都会有个 Dep 实例
+				this.dep = new Dep();
+				// 这里的 this 是 Observer 的实例
+				// 如果直接将this赋值 obj.__ob__ = this; 那么每一个被监控的对象都会有一个__ob__属性，__ob__ 属性上会有 walk 和 observeArray 方法了。但是直接这么定义会导致死循环，一直会去执行 observeArray 或 walk 方法
+				// 所以该用 defineProperty 的方法定义 __ob__ 属性，这个属性也可以用来判断对象是否有 getter 和 setter 函数，是否需要被劫持
+				def(obj,'__ob__',this);
 				if(Array.isArray(obj)){
-					obj.__proto__ = arrayMethodsChange();
-					// Object.setPrototypeOf(obj,arrayMethodsChange);
+					obj.__proto__ = newArrayMethods();
+					// Object.setPrototypeOf(obj,newArrayMethods);
 					this.observeArray(obj);
 				}else{
 					this.walk(obj)
@@ -180,10 +220,9 @@
 			}
 			// 遍历每个对象的层级
 			walk (obj) {
-				// data属性组成的数组
-				const keys = Object.keys(obj)
+				const keys = Object.keys(obj); // data属性组成的数组
 				for (let i = 0; i < keys.length; i++) {
-					defineReactive(obj, keys[i])
+					defineReactive(obj, keys[i] )
 				}
 			}
 			// 劫持数组里的对象
@@ -192,64 +231,102 @@
 					observe(arr[i])
 				}
 			}
-	}
+		}
 
-		// 判断传入的对象是否为嵌套对象，实现各个层级的属性都能够被defineProperty定义
+
+		// 判断传入的数据是否为对象，实现各个层级的属性都能够被 defineReactive
 		function observe(obj){
-			// 必须保证要观察的data是对象
-			if(typeof obj !== 'object' || obj === null) return;
-			// ob变量存储的是Observer的实例，__ob__是Observer实例
+			if(!isObject(obj)) return;
 			var ob;
-			// 初始的ob是undefined，通过new Observer的目的是让ob成为Observer的实例，在Observer上通过def来定义__ob__属性，即可给data上的每个对象添加__ob__属性
-			if(typeof obj.__ob__ !== 'undefined'){
+			// __ob__ 属性保存的是 Observer 实例且是数据对象自身的属性，是通过 Observer 类中中的 def 定义的
+			// 有 __ob__ 属性则表示被 defineReactive 了
+			if(typeof obj.__ob__ !== 'undefined' &&
+				obj.__ob__ instanceof Observer &&
+				hasOwn(obj, '__ob__')){
 				ob = obj.__ob__;
 			}else{
 				ob = new Observer(obj);
 			}
-			// 最终返回的ob都是Observer实例，最终的目的是给data上的每个对象新增getter和setter方法，同时也会新增一个__ob__实例属性，即实现响应式
 			return ob;
 		}
 
-		function arrayMethodsChange(){
-			// 其中slice不会改变原数组，所以不需要重写，劫持
-			const arrMethods = ['push','pop','shift','unshift','splice','sort','reserve'];
-			// 获取数组原型上的方法
-			const oldArrayProtope = Array.prototype;
-			// 以oldArrayProtope为原型,创建一个含有数组方法的对象
-			// newArrayPrototypeObj.__proto__ = oldArrayProtope;
-			const newArrayPrototypeObj = Object.create(oldArrayProtope);
-			// 传进来的value值.__proto__ = newArrayPrototypeObj;
-			// 会查找重写的push等方法，没有则通过原型链继续网上找方法
-			arrMethods.forEach(methodName => {
-				// 给newArrayPrototypeObj添加方法
-				newArrayPrototypeObj[methodName] = function(...args){
-					// 调用原数组的方法才能真正的执行
-					// 因为这里的方法都是传进来需要被检测的对象调用的，所以this就是指传进来需要被检测的对象
-					// 在Observer类上给每个被劫持的对象都添加了__ob__属性，__ob__属性就是Observer实例，所以有walk和observeArray的方法
-					let ob = this.__ob__;
-					const result = oldArrayProtope[methodName].call(this,...args);
-					// 如果添加的元素还是对象
-					let inserted;// 插入的元素
-					switch(methodName){
-						// push和unshift的就是插入元素
-						case 'push':
-						case 'unshift':
-							inserted = args;
-						// 可以新增 删除 修改
-						// arr.splice(0,1,'插入的数组')
-						case 'splice':
-							inserted = args.splice(2);
-						default:
-							break;
-					}
-					// 如果插入的元素还是数组则需要继续劫持
-					if(inserted) ob.observeArray(inserted);
+
+		/*
+			const data = {
+				a: {
+					b: 1
 				}
-			})
-			return newArrayPrototypeObj;
-		}
+			}
+
+			// 转换为
+
+			const data = {
+				a: {
+					b: 1,
+					__ob__: {value, dep}
+				},
+				__ob__: {value, dep}
+			}
+			*/
 
 		observe(data);
+
+		new Watcher(data,'msg',() => {
+			console.log('msg值被改变了')
+		})
+
+
+
+
+		/*
+			let data = {
+				msg: 'Hello',
+				name: 'Len'
+			}
+			
+			// 模拟vue的实例
+			let vm = {}
+			// Object.keys循环对象属性
+			Object.keys(data).forEach(key => {
+				// 数据劫持：当访问或者设置vm中的数据时做的一些操作
+				Object.defineProperty(vm,key,{
+					get(){
+						console.log('getter')
+						document.querySelector("#app").textContent = data[key];
+						return data[key]
+					},
+					set(newVal){
+						console.log('setter');
+						data[key] = newVal;
+						document.querySelector("#app").textContent = data[key];
+						return;
+					}
+				})
+			})
+			console.log(vm.msg)
+			*/
+
+			/*
+			let _data = {
+				msg: 'Hello',
+				name: 'Len'
+			}
+			
+			const _vm = new Proxy(_data,{
+				get(target,key){
+					console.log('gettter',' key==',key,' taget[key===]',target[key])
+					return target[key]
+				},
+				set(target,key,newValue){
+					console.log('settter',' key==',key,' taget[key===]',target[key],' newValue===',newValue)
+					if(target[key] === newValue){
+						return;
+					}
+					target[key] = newValue;
+					document.querySelector('#root').textContent = target[key];
+				}
+			})
+			*/
     </script>
 </body>
 </html>

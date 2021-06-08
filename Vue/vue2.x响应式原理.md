@@ -209,8 +209,8 @@ const data = {
 
 可能存在多个组件依赖数据的情况，数据的变化需要通知到组件去做成对应的更新。这时就需要用到收集依赖(数据)的变化，在变化之后，通知依赖去更新。
 
-- 依赖：用到数据的地方(如组件)，称之为依赖。也可以理解为数据
-- Watcher类：对于 Watcher 类，这是一个比较抽象的概念，应该是一个数据变化从而要发生变化（触发回调方法如派发更新）的这么一个类。Watcher 实例会根据数据的变化来触发某些事件，通知视图更新，就是用来观察数据变化的。也可以看成是数据对象和组件之间的中介。
+- 依赖：用到数据的地方(如组件)，watcher 依赖。也可以理解为数据
+- Watcher类：对于 Watcher 类，这是一个比较抽象的概念，应该是一个数据变化从而要发生变化（触发回调方法如派发更新）的这么一个对象。Watcher 实例会根据数据的变化来触发某些事件，通知视图更新，就是用来观察数据变化的。也可以看成是数据对象和组件之间的中介。每个 Watcher 实例订阅一个或者多个数据，这些数据也被称为 watcher 的依赖(商品就是买家的依赖)
 - Dep类：用来管理 Watcher 实例
 
 比如在双十一搞活动，有预售商品A售卖，那么在预售阶段，买家张三李四等就会去点击预购下定金，taobao 后台系统就会在商品A对应的管理系统将买家信息收集起来，这时买家就处于等待阶段，等到商品A开售，taobao 系统就会提醒买家支付尾款下单购买，购买之后，taobao商品的状态应该是等待发货，这就完成了发布-订阅模式的流程。
@@ -219,7 +219,7 @@ const data = {
 主要是研究渲染函数中的 Watcher，先建立一个管理 Watcher 实例的类 Dep
 
 ```javascript
-// Dep类来管理 Watcher
+// Dep类来管理 watcher
 class Dep{
   constructor(){
     // 存放 watcher
@@ -229,7 +229,7 @@ class Dep{
   depend(){
     this.addSubs(Dep.target)
   }
-  // 派发通知更新，当数据变化之后通知每个依赖去更新视图
+  // 派发通知更新，当依赖(数据)变化之后通知去更新视图
   notify(){
     const subs = [...this.subs];
     // 通知每个wathcer作出对应的动作
@@ -252,8 +252,9 @@ Dep.target = null
 class Watcher{
   // 变量命名原则：内部数据使用下划线开头，只读数据用$开头
   constructor(data,objPath,callback){
+    // 保存的传入的对象
     this._data = data;
-    this._objPath = objPath;// 观察的表达式(属性路径)，如obj.a.b 在源码中第一次new Watcher 时传入的是 updateComponent 主要是调用_render(渲染虚拟DOM)和_update(将vnode渲染成真实DOM)函数的作用
+    this._objPath = objPath;// 观察的表达式(属性路径)，如obj.a.b
     this._callback = callback;// 观察的表达式变化时触发的回调函数
     this._value = this.get();// 得到指定路径的value值
   }
@@ -282,9 +283,9 @@ function getValueByObjPath(path){
 }
 ```
 
-定义了 Watcher 类，那什么时候实例化呢？从`src/core/instance/init.js`中的`_int`方法可以得知，`$mount`方法是将组件挂载到给定元素上的函数。而`$mount`又是通过`mountComponent`函数去真正的挂载组件。在 `mountComponent`方法中执行完`beforeMount`之后，定义了`updateComponent`函数，这个函数是传入`Watcher`类的第二个参数，作用就是：把渲染函数生成的虚拟DOM渲染成真正的DOM。
+定义了 Watcher 类，那什么时候实例化呢？从`src/core/instance/init.js`中的`_int`方法可以得知，`$mount`方法是将组件挂载到给定元素上的函数。而`$mount`又是通过`mountComponent`函数去真正的挂载组件。在 `mountComponent`方法中执行完`beforeMount`之后，定义了`updateComponent`函数，这个函数是传入`Watcher`类的第二个参数，作用就是：把渲染函数生成的虚拟DOM渲染成真正的DOM，之后 new Watcher()。
 
-也就是说在 initData -> initLifecycle 中，在挂载 DOM 过程中调用了 mountComponet 方法生成真实 DOM 前（beforeMount后，Mounted前）在当前组件 vm 中实例化了 Watcher。
+也就是说 initData -> initLifecycle 中，在挂载 DOM 过程中调用了 mountComponet 方法生成真实 DOM 前（beforeMount后，Mounted前）在当前组件 vm 中实例化了 Watcher。
 
 ```javascript
 // vue源码片段 lifecycle.js文件
@@ -294,7 +295,7 @@ vm._watcher = null
 updateComponent = () => {
   vm._update(vm._render(), hydrating)
 }
-// 新建了一个 watcher 实例
+// new 了一个 watcher 实例
 new Watcher(vm,updateComponent)
 ```
 
@@ -304,7 +305,7 @@ new Watcher(vm,updateComponent)
 
 所以一旦 vm 实例中的 data 对象值发生变化，那么就会触发 watcher 对象， watcher 对象就会调用 updateComponent 方法重新绘制 DOM 节点。
 
-是时候收集数据依赖和根据数据依赖的变化去通知 watcher 作出回应从而更新视图了。这里还得注意到实例化 watcher 的过程，实例化执行到 constructor 的时候，会调用 Watcher 类上的 get 方法（求属性值的方法），那就会触发该属性上的 getter 函数。所以可以将 depend watcher 放在getter函数上，getter 函数执行完毕，则 depend watcher 也结束，实例中的 get 方法才执行完，最后 constructor 执行完。
+那就需要收集看 vm 中用到了哪些数据对象，也就是需要收集数据依赖和根据依赖的变化去通知 watcher 作出回应从而更新视图了。这里还得注意到实例化 watcher 的过程，实例化执行到 constructor 的时候，会调用 Watcher 类上的 get 方法（求属性值的方法），那就会触发该属性上的 getter 函数。所以可以将收集依赖(depend watcher)放在 getter 函数上，属性中的 getter 函数执行完毕，则收集该属性也就结束了，实例中的 get 方法才执行完，最后 constructor 执行完。
 
 ```javascript
 function defineReactive(data,key,val = data[key]){
@@ -348,9 +349,8 @@ get(){
 这里会有个问题，当对象obj:{a:'a',b:'b'}时，会先实例化一个 watcherA 依赖于obj.a，window.watcherTarget 则等于 watcherA。当访问 obj.b 时，getter 函数会调用 dep.depend() 收集依赖 window.watcherTarget，此时就会收集到 watcherA，依赖不对，所以 window.watcherTarget 赋值后重置。
 
 
-
 > 这里需要的是，因为是在 get 方法中赋值，所以不能这样写 window.target = new Watcher()，因为实例化执行到 getter 时，实例化 watcher 还未执行完。
-> 每个属性会有一个通过闭包得到的 dep 来收集 watcher ，(vue源码)并且通过将 Observer 实例化def定义的属性__ob__得到了一份 dep 实例也是用来收集 watcher。但是__ob__中的 dep 的触发时机是在使用 vue.$set 或 vue.set 给数据对象添加新属性。而 defineProperty中的 dep 实例则是在数据对象在取值或值被修改时触发。两者收集的东西是一样的。
+> 每个属性会有一个通过闭包得到的 dep 来收集 watcher ，(vue源码)并且通过将 Observer 实例化 def 定义的属性__ob__得到了一份 dep 实例也是用来收集 watcher。但是__ob__中的 dep 的触发时机是在使用 vue.$set 或 vue.set 给数据对象添加新属性。而 defineProperty中的 dep 实例则是在数据对象在取值或值被修改时触发。两者收集的东西是一样的。
 > 所以在vue源码中 __ob__ 属性以及 __ob__.dep 的主要作用是为了 vue.$set 添加、删除属性时有能力触发依赖
 > 在getter中收集依赖，在setter中触发依赖
 
