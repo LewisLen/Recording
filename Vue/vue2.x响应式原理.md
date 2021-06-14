@@ -3,7 +3,7 @@
 相对于react和微信小程序对于属性的**侵入式**更改，Vue属于**非侵入式**
 
 > vue 是直接更改数据即可影响视图变化，如：this.num = 100
-> React 和 小程序则需要调用指定的封装方法来改变数据再改变视图
+> React 和微信小程序则需要调用指定的封装方法来改变数据再改变视图
 > React: this.setState({num:10})
 > 小程序: setData({num: 10})
 
@@ -11,7 +11,7 @@
 
 ### 关于Object.defineProperty方法
 
-Object.defineProperty() 方法会直接在一个对象上定义一个新属性，或者修改一个对象的现有属性，并返回此**对象**。其关键属性`get`和`set`能够监测和设置对象指定属性，换句话说，只要对象有了`getter`和`setter`，那么就可以认为这个对象是**响应式对象**，所以想要达到响应式的目的，那么就需要将所有对象的属性通过该方法来定义劫持。
+Object.defineProperty() 方法会直接在一个对象上定义一个新属性，或者修改一个对象的现有属性，并返回此**对象**。其关键属性`get`和`set`能够监测和设置对象指定属性。换句话说，只要对象通过该方法定义，有了`getter`和`setter`，那么就可以认为这个对象是**响应式对象**，所以想要达到响应式的目的，就需要将对象所有的属性通过该方法来定义进行劫持。
 
 ```javascript
 var book = {
@@ -27,10 +27,10 @@ Object.defineProperty(book,'price',{
   enumerable: false,
   // 属性值
   value: '100'
-})
-// 因为price属性被设置为false只读不可修改，所以这里的赋值是无效的
+});
+// 通过defineProperty方法定义的属性，不能直接被赋值修改值
 book.price = '98';
-console.log(book.price); // 100
+console.log(book.price); // 还是定义的value值100
 // price属性不可枚举
 for(var k in book){
   console.log(k) // title、type

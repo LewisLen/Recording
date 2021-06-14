@@ -33,8 +33,9 @@ MyVue.prototype.compiler = function(){
 }
 
 MyVue.prototype.update = function(realDOM){
+  const _el = this._el;
   // 替换元素
-  this._parent.replaceChild(realDOM,document.querySelector('#app'))
+  this._parent.replaceChild(realDOM,document.querySelector(_el))
 }
 
 // Vue源码中template是字符串模版 -> VNode -> 真正的DOM

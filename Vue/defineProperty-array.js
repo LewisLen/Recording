@@ -38,43 +38,45 @@ const def = (obj,key,value,enumerable) => {
 }
 
 // 因为没法以数组的索引进行监听，所以只能监听数组本身，有数组的部分方法会改变数组自身，所以当调用部分数组方法时进行监测即可
-function newArrayMethods(){
-  // 只对会改变原数组的方法进行改写监测，不会改变原数组则不需要重写
-  const methodsToPatch = ['push','pop','shift','unshift','splice','sort','reserve'];
-  // 获取数组原型上的方法{}
-  const arrayProto = Array.prototype;
-  // 以 arrayProto 为原型,创建一个含有数组原型方法的对象
-  const arrayMethods = Object.create(arrayProto);// 相当于 arrayMethods.__proto__ = arrayProto;
-  // 会将传进来的 value 值的__proto__属性指向 arrayMethods，即 value.__proto__ = arrayMethods;在 value 调用方法时，会根据原型链查找方法
-  methodsToPatch.forEach(methodName => {
-    // 给 arrayMethods 添加同名方法
-    arrayMethods[methodName] = function(...args){
-      // 调用原数组的方法才能真正的执行
-      // 因为这里的方法都是传进来需要被检测的对象调用的，所以 this 就是指传进来需要被检测的对象
-      // 在 Observer 类上给每个被劫持的对象都添加了__ob__属性，__ob__ 属性就是Observer实例，所以有 walk 和 observeArray 的方法，则可以给元素进行劫持
-      let ob = this.__ob__;
-      const result = arrayProto[methodName].call(this,...args);
-      // 添加的元素可能还是对象
-      let inserted;// 插入的元素
-      switch(methodName){
-        // push和unshift的就是插入元素
-        case 'push':
-        case 'unshift':
-          inserted = args;
-        // 可以新增 删除 修改
-        // arr.splice(开始的位置,删除的个数,'插入的数组')
-        case 'splice':
-          inserted = args.slice(2);
-        default:
-          break;
-      }
-      // 如果插入的元素还是数组则需要继续劫持
-      if(inserted) ob.observeArray(inserted);
-      return result;
+// 只对会改变原数组的方法进行改写监测，不会改变原数组则不需要重写
+const methodsToPatch = ['push','pop','shift','unshift','splice','sort','reserve'];
+// 获取数组原型上的方法{}
+const arrayProto = Array.prototype;
+// 以 arrayProto 为原型,创建一个含有数组原型方法的对象
+const arrayMethods = Object.create(arrayProto);// 相当于 arrayMethods.__proto__ = arrayProto;
+// 会将传进来的 value 值的__proto__属性指向 arrayMethods，即 value.__proto__ = arrayMethods;在 value 调用方法时，会根据原型链查找方法
+methodsToPatch.forEach(methodName => {
+  // 给 arrayMethods 添加同名方法
+  arrayMethods[methodName] = function(...args){
+    // 调用原数组的方法才能真正的执行
+    // 因为这里的方法都是传进来需要被检测的对象调用的，所以 this 就是指传进来需要被检测的对象
+    // 在 Observer 类上给每个被劫持的对象都添加了__ob__属性，__ob__ 属性就是Observer实例，所以有 walk 和 observeArray 的方法，则可以给元素进行劫持
+    let ob = this.__ob__;
+    // this指向的是调用该方法的数组
+    const result = arrayProto[methodName].call(this,...args);
+    // 添加的元素可能还是对象
+    let inserted;// 插入的元素
+    switch(methodName){
+      // push和unshift的就是插入元素
+      case 'push':
+      case 'unshift':
+        inserted = args;
+        break;
+      // 可以新增 删除 修改
+      // arr.splice(开始的位置,删除的个数,'插入的数组')
+      case 'splice':
+        inserted = args.slice(2);
+        break;
+      default:
+        break;
     }
-  })
-  return arrayMethods;
-}
+    // 如果插入的元素还是数组则需要继续劫持
+    if(inserted) ob.observeArray(inserted);
+    return result;
+  }
+
+})
+
 
 
 // 管理 watcher 的类
@@ -180,8 +182,9 @@ class Observer{
     // 所以该用 defineProperty 的方法定义 __ob__ 属性，这个属性也可以用来判断对象是否有 getter 和 setter 函数，是否需要被劫持
     def(obj,'__ob__',this);
     if(Array.isArray(obj)){
-      obj.__proto__ = newArrayMethods();
-      // Object.setPrototypeOf(obj,newArrayMethods);
+      obj.__proto__ = arrayMethods;
+      // Object.setPrototypeOf(obj,arrayMethods);
+      // 如果数组里的是对象则再劫持
       this.observeArray(obj);
     }else{
       this.walk(obj)
