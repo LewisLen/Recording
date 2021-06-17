@@ -45,6 +45,25 @@ fn3();
 
 ## 对象方法调用
 
+这种情况出现比较多，就是在某个对象上调用方法，那么 this 就指向那个对象
+
+```javascript
+var name = 'Len';
+var person = {
+  name: 'LewisLen',
+  fn: fn
+}
+function fn(){
+  console.log(this.name)
+}
+person.fn();// LewisLen
+// 这里只是将person.fn赋值给f，一开始并没有调用，还是那句话，普通函数调用的时候才能确认this指向
+var f = person.fn;
+f();// len
+```
+
+
+
 
 
 
